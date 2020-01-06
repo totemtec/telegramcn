@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Telegram APIs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="description" content="We offer two kinds of APIs for developers. The Bot API allows you to easily create programs that use Telegram messages for…">
+    <meta property="og:title" content="Telegram APIs">
+    <meta property="og:image" content="df8a0f9162ddfc1daf">
+    <meta property="og:description" content="We offer two kinds of APIs for developers. The Bot API allows you to easily create programs that use Telegram messages for…">
+    <link rel="shortcut icon" href="/favicon.ico?3" type="image/x-icon" />
+
+    <link href="/css/bootstrap.min.css?3" rel="stylesheet">
+
+    <link href="/css/telegram.css?177" rel="stylesheet" media="screen">
+    <style>
+    </style>
+</head>
+<body>
+<div class="dev_page_wrap">
+    <div class="dev_page_head navbar navbar-static-top navbar-tg">
+        <div class="navbar-inner">
+            <div class="container clearfix">
+                <ul class="nav navbar-nav navbar-right hidden-xs"><li class="navbar-twitter"><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)"><i class="icon icon-twitter"></i><span> Twitter</span></a></li></ul>
+                <ul class="nav navbar-nav">
+                    <li><a href="//telegram.org/">Home</a></li>
+                    <li class="hidden-xs"><a href="//telegram.org/faq">FAQ</a></li>
+                    <li class="hidden-xs"><a href="//telegram.org/apps">Apps</a></li>
+                    <li class="active"><a href="/api">API</a></li>
+                    <li class=""><a href="/mtproto">Protocol</a></li>
+                    <li class=""><a href="/schema">Schema</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container clearfix">
+        <div class="dev_page">
+            <div id="dev_page_content_wrap" class=" ">
+                <div class="dev_page_bread_crumbs"></div>
+                <h1 id="dev_page_title" dir="auto">Telegram APIs</h1>
+
+                <div id="dev_page_content" dir="auto"><p>We offer two kinds of APIs for developers. The <a href="#bot-api"><strong>Bot API</strong></a> allows you to easily create programs that use Telegram messages for an interface. The <a href="#tdlib-build-your-own-telegram"><strong>Telegram API and TDLib</strong></a> allow you to build your own customized Telegram clients. You are welcome to use both APIs free of charge.</p>
+                    <p>You can also add <a href="/widgets"><strong>Telegram Widgets</strong></a> to your website.</p>
+                    <p>Designers are welcome to create <a href="/animated_stickers"><strong>Animated Stickers</strong></a> or <a href="/themes"><strong>Custom Themes</strong></a> for Telegram.</p>
+                    <hr>
+                    <h3><a class="anchor" name="bot-api" href="#bot-api"><i class="anchor-icon"></i></a>Bot API</h3>
+                    <div>
+                        <a href="/file/811140327/1/zlN4goPTupk/9ff2f2f01c4bd1b013" target="_blank"><img src="/file/811140934/1/tbDSLHSaijc/fdcc7b6d5fb3354adf" title="The Botfather. Click for hi-res picture"  style="max-width: 200px;float:right" /></a>
+                    </div>
+
+                    <p>This API allows you to connect bots to our system. <a href="/bots"><strong>Telegram Bots</strong></a> are special accounts that do not require an additional phone number to set up. These accounts serve as an interface for code running somewhere on your server.</p>
+                    <p>To use this, you don&#39;t need to know anything about how our MTProto encryption protocol works — our intermediary server will handle all encryption and communication with the Telegram API for you. You communicate with this server via a simple HTTPS-interface that offers a simplified version of the Telegram API.</p>
+                    <blockquote>
+                        <p><a href="/bots"><strong>Learn more about the Bot API here &raquo;</strong></a></p>
+                    </blockquote>
+                    <p>Bot developers can also make use of our <a href="/bots/payments"><strong>Payments API</strong></a> to accept <strong>payments</strong> from Telegram users around the world.</p>
+                    <hr>
+                    <h3><a class="anchor" name="tdlib-build-your-own-telegram" href="#tdlib-build-your-own-telegram"><i class="anchor-icon"></i></a>TDLib – build your own Telegram</h3>
+                    <p>Even if you‘re looking for maximum customization, you don’t have to create your app from scratch. Try our <a href="https://core.telegram.org/tdlib"><strong>Telegram Database Library</strong></a> (or simply TDLib), a tool for third-party developers that makes it easy to build fast, secure and feature-rich Telegram apps.</p>
+                    <p>TDLib takes care of all <strong>network implementation</strong> details, <strong>encryption</strong> and <strong>local data storage</strong>, so that you can dedicate more time to design, responsive interfaces and beautiful animations.</p>
+                    <p>TDLib supports all Telegram features and makes developing Telegram apps a breeze on any platform. It can be used on Android, iOS, Windows, macOS, Linux and virtually any other system. The library is open source and compatible with virtually <strong>any programming language</strong>.</p>
+                    <blockquote>
+                        <p><a href="https://core.telegram.org/tdlib"><strong>Learn more about TDLib here »</strong></a></p>
+                    </blockquote>
+                    <hr>
+                    <h3><a class="anchor" name="telegram-api" href="#telegram-api"><i class="anchor-icon"></i></a>Telegram API</h3>
+                    <p>This API allows you to build your own customized Telegram clients. It is 100% open for all developers who wish to create Telegram applications on our platform. Feel free to study the open <a href="https://telegram.org/apps#source-code">source code</a> of existing Telegram applications for examples of how things work here. Don&#39;t forget to <a href="/api/obtaining_api_id">register</a> your application in our system. </p>
+                    <ul>
+                        <li><a href="#getting-started">Getting Started</a></li>
+                        <li><a href="#security">Security</a></li>
+                        <li><a href="#optimization">Optimization</a></li>
+                        <li><a href="#api-methods">API methods</a></li>
+                    </ul>
+                    <h3><a class="anchor" name="getting-started" href="#getting-started"><i class="anchor-icon"></i></a>Getting started</h3>
+                    <h4><a class="anchor" name="creating-an-application" href="#creating-an-application"><i class="anchor-icon"></i></a><a href="/api/obtaining_api_id">Creating an application</a></h4>
+                    <p>How to get your application identifier and create a new Telegram app.</p>
+                    <h4><a class="anchor" name="user-authorization" href="#user-authorization"><i class="anchor-icon"></i></a><a href="/api/auth">User authorization</a></h4>
+                    <p>How to register a user&#39;s phone to start using the API.</p>
+                    <h4><a class="anchor" name="two-factor-authentication" href="#two-factor-authentication"><i class="anchor-icon"></i></a><a href="/api/srp">Two-factor authentication</a></h4>
+                    <p>How to login to a user&#39;s account if they have enabled 2FA, how to change password.</p>
+                    <h4><a class="anchor" name="error-handling" href="#error-handling"><i class="anchor-icon"></i></a><a href="/api/errors">Error handling</a></h4>
+                    <p>How to handle API return errors correctly.</p>
+                    <h4><a class="anchor" name="handling-different-data-centers" href="#handling-different-data-centers"><i class="anchor-icon"></i></a><a href="/api/datacenter">Handling different data centers</a></h4>
+                    <p>How to connect to the closest DC access point for faster interaction with the API, and things to watch out for when developing a client.</p>
+                    <h4><a class="anchor" name="handling-updates" href="#handling-updates"><i class="anchor-icon"></i></a><a href="/api/updates">Handling updates</a></h4>
+                    <p>How to subscribe to updates and handle them properly.</p>
+                    <h4><a class="anchor" name="handling-push-notifications" href="#handling-push-notifications"><i class="anchor-icon"></i></a><a href="/api/push-updates">Handling PUSH-notifications</a></h4>
+                    <p>How to subscribe and handle them properly.</p>
+                    <h4><a class="anchor" name="channels-supergroups-and-groups" href="#channels-supergroups-and-groups"><i class="anchor-icon"></i></a><a href="/api/channel">Channels, supergroups and groups</a></h4>
+                    <p>How to handle channels, supergroups, groups, and what&#39;s the difference between them.</p>
+                    <h4><a class="anchor" name="calling-methods" href="#calling-methods"><i class="anchor-icon"></i></a><a href="/api/invoking">Calling methods</a></h4>
+                    <p>Additional options for calling methods.</p>
+                    <h4><a class="anchor" name="uploading-and-downloading-files" href="#uploading-and-downloading-files"><i class="anchor-icon"></i></a><a href="/api/files">Uploading and Downloading Files</a></h4>
+                    <p>How to transfer large data batches correctly.</p>
+                    <h4><a class="anchor" name="pagination" href="#pagination"><i class="anchor-icon"></i></a><a href="/api/offsets">Pagination</a></h4>
+                    <p>How to fetch results from large lists of objects.</p>
+                    <h3><a class="anchor" name="security" href="#security"><i class="anchor-icon"></i></a>Security</h3>
+                    <h4><a class="anchor" name="secret-chats-end-to-end-encryption" href="#secret-chats-end-to-end-encryption"><i class="anchor-icon"></i></a><a href="/api/end-to-end">Secret chats, end-to-end encryption</a></h4>
+                    <p>New feature for end-to-end-encrypted messaging.</p>
+                    <h4><a class="anchor" name="security-guidelines" href="#security-guidelines"><i class="anchor-icon"></i></a><a href="/mtproto/security_guidelines">Security guidelines</a></h4>
+                    <p>Important checks required in your client application.</p>
+                    <h4><a class="anchor" name="perfect-forward-secrecy" href="#perfect-forward-secrecy"><i class="anchor-icon"></i></a><a href="/api/pfs">Perfect Forward Secrecy</a></h4>
+                    <p>Binding temporary authorization key to permanent ones.</p>
+                    <h3><a class="anchor" name="optimization" href="#optimization"><i class="anchor-icon"></i></a>Optimization</h3>
+                    <h4><a class="anchor" name="client-optimization" href="#client-optimization"><i class="anchor-icon"></i></a><a href="/api/optimisation">Client optimization</a></h4>
+                    <p>Ways to boost API interactions.</p>
+                    <h3><a class="anchor" name="api-methods" href="#api-methods"><i class="anchor-icon"></i></a>API methods</h3>
+                    <h4><a class="anchor" name="available-method-list" href="#available-method-list"><i class="anchor-icon"></i></a><a href="/methods">Available method list</a></h4>
+                    <p>A list of available high-level methods.</p>
+                    <h4><a class="anchor" name="api-tl-schema-as-json" href="#api-tl-schema-as-json"><i class="anchor-icon"></i></a><a href="/schema">API TL-schema</a>, <a href="/schema/json">as JSON</a></h4>
+                    <p>Text and JSON-presentation of types and methods used in API.</p>
+                    <h4><a class="anchor" name="available-layer-list" href="#available-layer-list"><i class="anchor-icon"></i></a><a href="/api/layers">Available layer list</a></h4>
+                    <p>A list of available schema versions.</p>
+                    <h3><a class="anchor" name="other-articles" href="#other-articles"><i class="anchor-icon"></i></a>Other articles</h3>
+                    <h4><a class="anchor" name="admin-banned-and-default-rights-for-channels-supergroups-and-gro" href="#admin-banned-and-default-rights-for-channels-supergroups-and-gro"><i class="anchor-icon"></i></a><a href="/api/rights">Admin, banned and default rights for channels, supergroups and groups</a></h4>
+                    <p>How to handle admin permissions, granular bans and global permissions in channels, groups and supergroups.</p>
+                    <h4><a class="anchor" name="min-constructors" href="#min-constructors"><i class="anchor-icon"></i></a><a href="/api/min">Min constructors</a></h4>
+                    <p>Sometimes, <a href="/constructor/user">user</a> and <a href="/constructor/channel">channel</a> constructors met in group chat updates may not contain full info about the user: how to handle such constructors.</p>
+                    <h4><a class="anchor" name="account-deletion" href="#account-deletion"><i class="anchor-icon"></i></a><a href="/api/account-deletion">Account deletion</a></h4>
+                    <p>How to reset an account if the <a href="/api/srp">2FA</a> password was forgotten.</p>
+                    <h4><a class="anchor" name="telegram-passport" href="#telegram-passport"><i class="anchor-icon"></i></a><a href="/api/passport">Telegram Passport</a></h4>
+                    <p>How to work with <a href="/api/passport">Telegram Passport</a> directly using the MTProto API.</p>
+                    <h4><a class="anchor" name="telegram-payments" href="#telegram-payments"><i class="anchor-icon"></i></a><a href="/api/payments">Telegram Payments</a></h4>
+                    <p>How to work with Telegram Payments directly using the MTProto API.</p>
+                    <h4><a class="anchor" name="styled-text-with-message-entities" href="#styled-text-with-message-entities"><i class="anchor-icon"></i></a><a href="/api/entities">Styled text with message entities</a></h4>
+                    <p>How to create styled text with message entities</p>
+                    <h4><a class="anchor" name="message-drafts" href="#message-drafts"><i class="anchor-icon"></i></a><a href="/api/drafts">Message drafts</a></h4>
+                    <p>How to handle message drafts</p>
+                    <h4><a class="anchor" name="top-peer-rating" href="#top-peer-rating"><i class="anchor-icon"></i></a><a href="/api/top-rating">Top peer rating</a></h4>
+                    <p>If <a href="/method/contacts.toggleTopPeers">enabled</a>, the rating of <a href="/constructor/topPeer">top peers</a> indicates the relevance of a frequently used peer in a certain <a href="/type/TopPeerCategory">category</a> (frequently messaged users, frequently used bots, inline bots, frequently visited channels and so on).</p>
+                    <h4><a class="anchor" name="handling-file-references" href="#handling-file-references"><i class="anchor-icon"></i></a><a href="/api/file_reference">Handling file references</a></h4>
+                    <p>How to handle file references.</p>
+                    <h4><a class="anchor" name="seamless-telegram-login" href="#seamless-telegram-login"><i class="anchor-icon"></i></a><a href="/api/url-authorization">Seamless Telegram Login</a></h4>
+                    <p>Handle Seamless Telegram Login URL authorization requests.</p>
+                    <h4><a class="anchor" name="web-events" href="#web-events"><i class="anchor-icon"></i></a><a href="/api/web-events">Web events</a></h4>
+                    <p>When interacting with HTML5 games and the websites of payment gateways, Telegram apps should expose the following JS APIs.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="footer_wrap">
+        <div class="footer_columns_wrap clearfix footer_desktop">
+            <div class="footer_column footer_column_telegram">
+                <h5>Telegram</h5>
+                <div class="footer_telegram_description"></div>
+                Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.
+            </div>
+
+            <div class="footer_column">
+                <h5><a href="//telegram.org/faq">About</a></h5>
+                <ul>
+                    <li><a href="//telegram.org/faq">FAQ</a></li>
+                    <li><a href="//telegram.org/blog">Blog</a></li>
+                    <li><a href="//telegram.org/jobs">Jobs</a></li>
+                </ul>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps#mobile-apps">Mobile Apps</a></h5>
+                <ul>
+                    <li><a href="//telegram.org/dl/ios">iPhone/iPad</a></li>
+                    <li><a href="//telegram.org/dl/android">Android</a></li>
+                    <li><a href="//telegram.org/dl/wp">Windows Phone</a></li>
+                </ul>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps#desktop-apps">Desktop Apps</a></h5>
+                <ul>
+                    <li><a href="//desktop.telegram.org/">PC/Mac/Linux</a></li>
+                    <li><a href="//macos.telegram.org/">macOS</a></li>
+                    <li><a href="//telegram.org/dl/web">Web-browser</a></li>
+                </ul>
+            </div>
+            <div class="footer_column footer_column_platform">
+                <h5><a href="/">Platform</a></h5>
+                <ul>
+                    <li><a href="/api">API</a></li>
+                    <li><a href="//translations.telegram.org/">Translations</a></li>
+                    <li><a href="//instantview.telegram.org/">Instant View</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer_columns_wrap clearfix footer_mobile">
+            <div class="footer_column">
+                <h5><a href="//telegram.org/faq">About</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/blog">Blog</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps">Apps</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="/">Platform</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)">Twitter</a></h5>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/main.js?27"></script>
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45099287-4', 'auto');
+ga('set', 'anonymizeIp', true);
+ga('send', 'pageview');backToTopInit();
+</script>
+</body>
+</html>
+<!-- page generated in 6.71ms -->
