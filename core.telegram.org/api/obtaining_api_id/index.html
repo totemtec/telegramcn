@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Creating your Telegram Application</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="description" content="How to get your application identifier and create a new Telegram app.">
+    <meta property="og:title" content="Creating your Telegram Application">
+    <meta property="og:image" content="06c229ff662379138f">
+    <meta property="og:description" content="How to get your application identifier and create a new Telegram app.">
+    <link rel="shortcut icon" href="/favicon.ico?3" type="image/x-icon" />
+
+    <link href="/css/bootstrap.min.css?3" rel="stylesheet">
+
+    <link href="/css/telegram.css?177" rel="stylesheet" media="screen">
+    <style>
+    </style>
+</head>
+<body>
+<div class="dev_page_wrap">
+    <div class="dev_page_head navbar navbar-static-top navbar-tg">
+        <div class="navbar-inner">
+            <div class="container clearfix">
+                <ul class="nav navbar-nav navbar-right hidden-xs"><li class="navbar-twitter"><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)"><i class="icon icon-twitter"></i><span> Twitter</span></a></li></ul>
+                <ul class="nav navbar-nav">
+                    <li><a href="//telegram.org/">Home</a></li>
+                    <li class="hidden-xs"><a href="//telegram.org/faq">FAQ</a></li>
+                    <li class="hidden-xs"><a href="//telegram.org/apps">Apps</a></li>
+                    <li class="active"><a href="/api">API</a></li>
+                    <li class=""><a href="/mtproto">Protocol</a></li>
+                    <li class=""><a href="/schema">Schema</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container clearfix">
+        <div class="dev_page">
+            <div id="dev_page_content_wrap" class=" ">
+                <div class="dev_page_bread_crumbs"><ul class="breadcrumb clearfix"><li><a  href="/api" >API</a></li><i class="icon icon-breadcrumb-divider"></i><li><a  href="/api/obtaining_api_id" >Creating your Telegram Application</a></li></ul></div>
+                <h1 id="dev_page_title" dir="auto">Creating your Telegram Application</h1>
+
+                <div id="dev_page_content" dir="auto"><p>我们欢迎所有的开发人员免费使用我们平台的<a href="https://core.telegram.org/api#telegram-api">API</a> 和源代码来开发类似Telegram的即时消息App。</p>
+                    <blockquote>
+                        <p>为了确保Telegram生态系统的一致性和安全性，<br><strong>所有第三方客户端App</strong>都必须遵守<a href="/api/terms"><strong>API服务条款</strong></a>。</p>
+                    </blockquote>
+                    <h3><a class="anchor" name="obtaining-api-id" href="#obtaining-api-id"><i class="anchor-icon"></i></a>获取 api_id</h3>
+                    <p>获取 <strong>API id</strong> 步骤如下：</p>
+                    <ul>
+                        <li>Sign up for Telegram using any application.</li>
+                        <li>Log in to your Telegram core: <a href="https://my.telegram.org"><a href="https://my.telegram.org">https://my.telegram.org</a></a>.</li>
+                        <li>Go to <a href="https://my.telegram.org/apps">‘API development tools’</a> and fill out the form.</li>
+                        <li>You will get basic addresses as well as the <strong>api_id</strong> and <strong>api_hash</strong> parameters required for user authorization.</li>
+                        <li>For the moment each number can only have one api_id connected to it.</li>
+                    </ul>
+                    <p>我们会给你的电话号码发送重要的开发者通知，所以请用最新的手机号码激活你的Telegram账号。</p>
+                    <h3><a class="anchor" name="using-the-api-id" href="#using-the-api-id"><i class="anchor-icon"></i></a>使用api_id</h3>
+                    <p>请注意：所有客户端类库均收到严格监控，以防止滥用。</p>
+                    <p>如果您使用Telegram接口用来刷屏，滥发邮件，伪造订阅者和频道用户数量，会被<strong>永远封禁</strong>。</p>
+                    <p>基于对过度滥用Telegram接口的考虑，<strong>所有非Telegram官方客户端账号</strong> 都会 <strong>被监视</strong>，以避免违反 <a href="/api/terms">服务条款</a>。  </p>
+                    <p>如果意外被禁，可以邮件找<a href="mailto:recover@telegram.org">recover@telegram.org</a> 解释您的使用API的意图，要求解禁。<br>请注意，电子邮件是人工审查，因此自动生成的电子邮件会被过滤。</p>
+                    <h3><a class="anchor" name="using-telegram-39s-open-source-code" href="#using-telegram-39s-open-source-code"><i class="anchor-icon"></i></a>使用Telegram开源代码</h3>
+                    <p>欢迎使用我们的开源代码。代码里有个示例API ID。此 API ID在服务器端收到限制，不适合发布给终端用户，会导致API_ID_PUBLISHED_FLOOD错误。发布App前，必须要获得自己的 <strong>API id</strong>。</p>
+                    <blockquote>
+                        <p>请记住也要发布您的代码，以遵守GNU GPL许可。</p>
+                    </blockquote>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="footer_wrap">
+        <div class="footer_columns_wrap clearfix footer_desktop">
+            <div class="footer_column footer_column_telegram">
+                <h5>Telegram</h5>
+                <div class="footer_telegram_description"></div>
+                Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.
+            </div>
+
+            <div class="footer_column">
+                <h5><a href="//telegram.org/faq">About</a></h5>
+                <ul>
+                    <li><a href="//telegram.org/faq">FAQ</a></li>
+                    <li><a href="//telegram.org/blog">Blog</a></li>
+                    <li><a href="//telegram.org/jobs">Jobs</a></li>
+                </ul>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps#mobile-apps">Mobile Apps</a></h5>
+                <ul>
+                    <li><a href="//telegram.org/dl/ios">iPhone/iPad</a></li>
+                    <li><a href="//telegram.org/dl/android">Android</a></li>
+                    <li><a href="//telegram.org/dl/wp">Windows Phone</a></li>
+                </ul>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps#desktop-apps">Desktop Apps</a></h5>
+                <ul>
+                    <li><a href="//desktop.telegram.org/">PC/Mac/Linux</a></li>
+                    <li><a href="//macos.telegram.org/">macOS</a></li>
+                    <li><a href="//telegram.org/dl/web">Web-browser</a></li>
+                </ul>
+            </div>
+            <div class="footer_column footer_column_platform">
+                <h5><a href="/">Platform</a></h5>
+                <ul>
+                    <li><a href="/api">API</a></li>
+                    <li><a href="//translations.telegram.org/">Translations</a></li>
+                    <li><a href="//instantview.telegram.org/">Instant View</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer_columns_wrap clearfix footer_mobile">
+            <div class="footer_column">
+                <h5><a href="//telegram.org/faq">About</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/blog">Blog</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="//telegram.org/apps">Apps</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="/">Platform</a></h5>
+            </div>
+            <div class="footer_column">
+                <h5><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)">Twitter</a></h5>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/main.js?27"></script>
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45099287-4', 'auto');
+ga('set', 'anonymizeIp', true);
+ga('send', 'pageview');backToTopInit();
+</script>
+</body>
+</html>
+<!-- page generated in 5.15ms -->
