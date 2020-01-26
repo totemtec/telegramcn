@@ -40,25 +40,25 @@ MTProto v.1.0 is deprecated and is currently being phased…">
         <div class="dev_page">
             <div id="dev_page_content_wrap" class=" ">
                 <div class="dev_page_bread_crumbs"><ul class="breadcrumb clearfix"><li><a  href="/mtproto" >Mobile Protocol</a></li><i class="icon icon-breadcrumb-divider"></i><li><a  href="/mtproto/description" >﻿Mobile Protocol: Detailed Description</a></li></ul></div>
-                <h1 id="dev_page_title" dir="auto">﻿Mobile Protocol: Detailed Description</h1>
+                <h1 id="dev_page_title" dir="auto">﻿Mobile Protocol: 详细说明</h1>
 
                 <div id="dev_page_content" dir="auto"><!-- scroll_nav -->
 
                     <blockquote>
-                        <p>As of version 4.6, major Telegram clients are using <strong>MTProto 2.0</strong>.<br>MTProto v.1.0 is deprecated and is currently being phased out.</p>
+                        <p>从4.6开始，主要的Telegram客户端都使用了 <strong>MTProto 2.0</strong>。<br>MTProto v.1.0 已弃用，目前正在逐步淘汰。</p>
                     </blockquote>
-                    <p>This article describes the basic layer of the MTProto protocol version 2.0 (Cloud chats, server-client encryption). The principal differences from version 1.0 (<a href="/mtproto/description_v1">described here</a> for reference) are as follows:</p>
+                    <p>本文介绍MTProto 2.0协议的basic layer（云聊天，客户端服务器加密）。与<a href="/mtproto/description_v1"> 1.0 版本</a> 的主要区别如下：</p>
                     <ul>
-                        <li>SHA-256 is used instead of SHA-1;</li>
-                        <li>Padding bytes are involved in the computation of <strong>msg_key</strong>;</li>
-                        <li><strong>msg_key</strong> depends not only on the message to be encrypted, but on a portion of <strong>auth_key</strong> as well;</li>
-                        <li>12..1024 padding bytes are used instead of 0..15 padding bytes in v.1.0.</li>
+                        <li>使用SHA-256替换SHA-1；</li>
+                        <li><strong>msg_key</strong>的计算，涉及填充字节；</li>
+                        <li><strong>msg_key</strong>不仅取决于要加密的消息，还取决于<strong>auth_key</strong>的一部分；</li>
+                        <li>12..1024的填充字节，替代1.0中0..15的填充字节。</li>
                     </ul>
                     <p>See also: <a href="https://core.telegram.org/api/end-to-end">MTProto 2.0: Secret Chats, end-to-end encryption</a></p>
-                    <h3><a class="anchor" name="protocol-description" href="#protocol-description"><i class="anchor-icon"></i></a>Protocol description</h3>
-                    <p>Before a message (or a multipart message) is transmitted over a network using a transport protocol, it is encrypted in a certain way, and an external header is added at the top of the message that consists of a 64-bit key identifier <strong>auth_key_id</strong> (that uniquely identifies an authorization key for the server as well as the user) and a 128-bit message key <strong>msg_key</strong>. </p>
-                    <p>The authorization key <strong>auth_key</strong> combined with the message key <strong>msg_key</strong> define an actual 256-bit key <strong>aes_key</strong> and a 256-bit initialization vector <strong>aes_iv</strong>, which are used to encrypt the message using AES-256 encryption in infinite garble extension (IGE) mode. Note that the initial part of the message to be encrypted contains variable data (session, message ID, sequence number, server salt) that obviously influences the message key (and thus the AES key and iv). In <strong>MTProto 2.0</strong>, the message key is defined as the 128 middle bits of the SHA-256 of the message body (including session, message ID, padding, etc.) prepended by 32 bytes taken from the authorization key. In the older <strong>MTProto 1.0</strong>, the message key was computed as the lower 128 bits of SHA-1 of the message body, excluding the padding bytes.</p>
-                    <p>Multipart messages are encrypted as a single message. </p>
+                    <h3><a class="anchor" name="protocol-description" href="#protocol-description"><i class="anchor-icon"></i></a>协议说明</h3>
+                    <p>在网络传输消息之前，必须先对其进行加密。 消息前面会加一个扩展头，扩展头由两部分组成：64位的<strong>auth_key_id</strong>（唯一标识服务器和用户的授权密钥）和128位消息密钥<strong>msg_key</strong>。</p>
+                    <p>授权密钥<strong>auth_key</strong>与消息密钥<strong>msg_key</strong>组合在一起，定义了一个256位加密密钥<strong>aes_key</strong>和256位初始化向量<strong>aes_iv</strong>，用于AES-256 IGE模式加密消息。注意，要加密消息的初始部分包含的可变数据（会话，消息ID，序列号，服务器盐），这些会明显影响消息密钥msg_key（进而影响aes_key和aes_iv）。在<strong>MTProto 2.0</strong>中，消息密钥msg_key被定义为消息体（包含会话，消息ID，填充字节等）的SHA-256的中间128位，前置从授权密钥auth_key中提取的32字节。老版本的<strong>MTProto 1.0</strong>中，消息密钥msg_key是由消息体的SHA-1的低128位，不包含填充字节</p>
+                    <p>多体消息被加密为单体消息。</p>
                     <div><a href="/file/c2310d6ede1a5e220f.jpeg">
                         <img src="/file/c2310d6ede1a5e220f.jpeg" alt="MTProto server-client encryption, cloud chats" class="dev_page_image" style="max-width: 600px;" />
                     </a></div>
@@ -67,46 +67,46 @@ MTProto v.1.0 is deprecated and is currently being phased…">
                         <p>Got questions about this setup? — Check out the <a href="http://core.telegram.org/techfaq">Advanced FAQ</a>!</p>
                     </blockquote>
                     <h6><a class="anchor" name="note-1" href="#note-1"><i class="anchor-icon"></i></a><strong>Note 1</strong></h6>
-                    <p>Each plaintext message to be encrypted in MTProto always contains the following data to be checked upon decryption in order to make the system robust against known problems with the components:</p>
+                    <p>为系统健壮性，所有纯文本消息加密前都包含以下数据，解密时要检查：</p>
                     <ul>
-                        <li>server salt (64-Bit)</li>
-                        <li>session id</li>
-                        <li>message sequence number</li>
-                        <li>message length</li>
-                        <li>time</li>
+                        <li>服务器盐（64位）server salt (64-Bit)</li>
+                        <li>会话ID session id</li>
+                        <li>消息序列号 message sequence number</li>
+                        <li>消息长度 message length</li>
+                        <li>时间 time</li>
                     </ul>
                     <h6><a class="anchor" name="note-2" href="#note-2"><i class="anchor-icon"></i></a><strong>Note 2</strong></h6>
-                    <p>Telegram&#39;s <strong>End-to-end</strong> encrypted Secret Chats are using an additional layer of encryption on top of the described above. See <a href="https://core.telegram.org/api/end-to-end">Secret Chats, End-to-End encryption</a> for details.</p>
-                    <h3><a class="anchor" name="terminology" href="#terminology"><i class="anchor-icon"></i></a>Terminology</h3>
-                    <h4><a class="anchor" name="authorization-key-auth-key" href="#authorization-key-auth-key"><i class="anchor-icon"></i></a>Authorization Key (auth_key)</h4>
-                    <p>A 2048-bit key shared by the client device and the server, created upon user registration directly on the client device by exchanging Diffie-Hellman keys, and never transmitted over a network. Each authorization key is user-specific. There is nothing that prevents a user from having several keys (that correspond to “permanent sessions” on different devices), and some of these may be locked forever in the event the device is lost. See also <a href="/mtproto/auth_key">Creating an Authorization Key</a>.</p>
-                    <h4><a class="anchor" name="server-key" href="#server-key"><i class="anchor-icon"></i></a>Server Key</h4>
-                    <p>A 2048-bit RSA key used by the server digitally to sign its own messages while registration is underway and the authorization key is being generated. The application has a built-in public server key which can be used to verify a signature but cannot be used to sign messages. A private server key is stored on the server and changed very infrequently.</p>
-                    <h4><a class="anchor" name="key-identifier-auth-key-id" href="#key-identifier-auth-key-id"><i class="anchor-icon"></i></a>Key Identifier (auth_key_id)</h4>
-                    <p>The 64 lower-order bits of the SHA1 hash of the authorization key are used to indicate which particular key was used to encrypt a message. Keys must be uniquely defined by the 64 lower-order bits of their SHA1, and in the event of a collision, an authorization key is regenerated. A zero key identifier means that encryption is not used which is permissible for a limited set of message types used during registration to generate an authorization key in a Diffie-Hellman exchange. <strong>For MTProto 2.0, SHA1 is still used here, because auth_key_id should identify the authorization key used independently of the protocol version.</strong></p>
-                    <h4><a class="anchor" name="session" href="#session"><i class="anchor-icon"></i></a>Session</h4>
-                    <p>A (random) 64-bit number generated by the client to distinguish between individual sessions (for example, between different instances of the application, created with the same authorization key). The session in conjunction with the key identifier corresponds to an application instance. The server can maintain session state. <em>Under no circumstances can a message meant for one session be sent into a different session</em>. The server may unilaterally forget any client sessions; clients should be able to handle this. </p>
-                    <h4><a class="anchor" name="server-salt" href="#server-salt"><i class="anchor-icon"></i></a>Server Salt</h4>
-                    <p>A (random) 64-bit number periodically (say, every 24 hours) changed (separately for each session) at the request of the server. All subsequent messages must contain the new salt (although, messages with the old salt are still accepted for a further 300 seconds). Required to protect against replay attacks and certain tricks associated with adjusting the client clock to a moment in the distant future.</p>
+                    <p>Telegram的<strong>end to end</strong>端到端加密安全聊天，是在上述基础上，额外多用了一个附加层。 See <a href="https://core.telegram.org/api/end-to-end">Secret Chats, End-to-End encryption</a> for details.</p>
+                    <h3><a class="anchor" name="terminology" href="#terminology"><i class="anchor-icon"></i></a>术语</h3>
+                    <h4><a class="anchor" name="authorization-key-auth-key" href="#authorization-key-auth-key"><i class="anchor-icon"></i></a>授权密钥 (auth_key)</h4>
+                    <p>客户端和服务器共享的2048位密钥，是在用户注册时通过DH密钥交换，直接在客户端设备上创建的，不会通过网络传输。每个授权密钥都是用户特有的。用户可以有多个授权密钥（对应于不同设备上的“永久会话”），其中一些可能会在设备丢失的情况下永久锁定。 See also <a href="/mtproto/auth_key">Creating an Authorization Key</a>.</p>
+                    <h4><a class="anchor" name="server-key" href="#server-key"><i class="anchor-icon"></i></a>服务器密钥Server Key</h4>
+                    <p>当用户注册生成授权密钥auth_key时，用于服务器消息签名的2048位的RSA密钥。本应用程序有一个内置的服务器公钥，该公钥可用于验证签名，不能用于消息签名。服务器私钥保存在服务器上，很少更改。</p>
+                    <h4><a class="anchor" name="key-identifier-auth-key-id" href="#key-identifier-auth-key-id"><i class="anchor-icon"></i></a>授权密钥标识 (auth_key_id)</h4>
+                    <p>授权密钥的SHA1的64位长整数，低字节序，用于标示是哪个auth_key加密消息的。这个值必须唯一，如果发生冲突，需要重新生成授权密钥。为0的话表示不加密，在注册生成auth_key的DH密钥交换过程中，允许使用。 <strong>在MTProto 2.0中，此处仍然使用SHA1，因为auth_key_id用途独立于协议版本。</strong></p>
+                    <h4><a class="anchor" name="session" href="#session"><i class="anchor-icon"></i></a>会话Session</h4>
+                    <p>客户端生成的64位随机数字，以区分各个会话（例如，使用相同的auth_key创建的应用程序的不同实例）。会话session_id与密钥标识符auth_key_id一起，对应一个应用程序实例。服务器可以维护会话状态。 <em>在任何情况下都不能将用于一个会话的消息发送到另一个会话中</em>。 服务器可能会单方面忘记任何客户端会话； 客户应该能够处理这个。 </p>
+                    <h4><a class="anchor" name="server-salt" href="#server-salt"><i class="anchor-icon"></i></a>服务器盐Server Salt</h4>
+                    <p>服务器周期性（例如24小时）地改变的一个随机数字，64位。后续的所有消息都必须使用新的盐（旧盐仍可使用300秒）。目的是用来防止重放攻击和客户端时间问题。</p>
                     <h4><a class="anchor" name="message-identifier-msg-id" href="#message-identifier-msg-id"><i class="anchor-icon"></i></a>Message Identifier (msg_id)</h4>
                     <p>A (time-dependent) 64-bit number used uniquely to identify a message within a session. Client message identifiers are divisible by 4, server message identifiers modulo 4 yield 1 if the message is a response to a client message, and 3 otherwise. Client message identifiers must increase monotonically (within a single session), the same as server message identifiers, and must approximately equal unixtime*2^32. This way, a message identifier points to the approximate moment in time the message was created. A message is rejected over 300 seconds after it is created or 30 seconds before it is created (this is needed to protect from replay attacks). In this situation, it must be re-sent with a different identifier (or placed in a container with a higher identifier). The identifier of a message container must be strictly greater than those of its nested messages.</p>
                     <p><strong>Important</strong>: to counter replay-attacks the lower 32 bits of <strong>msg_id</strong> passed by the client must not be empty and must present a fractional part of the time point when the message was created.</p>
-                    <h4><a class="anchor" name="content-related-message" href="#content-related-message"><i class="anchor-icon"></i></a>Content-related Message</h4>
-                    <p>A message requiring an explicit acknowledgment. These include all the user and many service messages, virtually all with the exception of containers and acknowledgments. </p>
+                    <h4><a class="anchor" name="content-related-message" href="#content-related-message"><i class="anchor-icon"></i></a>内容相关的消息Content-related Message</h4>
+                    <p>需要显式确认的消息。 这包括所有用户消息和许多服务消息，除了容器消息和确认消息，几乎都是。</p>
                     <h4><a class="anchor" name="message-sequence-number-msg-seqno" href="#message-sequence-number-msg-seqno"><i class="anchor-icon"></i></a>Message Sequence Number (msg_seqno)</h4>
                     <p>A 32-bit number equal to twice the number of “content-related” messages (those requiring acknowledgment, and in particular those that are not containers) created by the sender prior to this message and subsequently incremented by one if the current message is a content-related message. A container is always generated after its entire contents; therefore, its sequence number is greater than or equal to the sequence numbers of the messages contained in it.</p>
-                    <h4><a class="anchor" name="message-key-msg-key" href="#message-key-msg-key"><i class="anchor-icon"></i></a>Message Key (msg_key)</h4>
-                    <p>In <strong>MTProto 2.0</strong>, the middle 128 bits of the SHA-256 hash of the message to be encrypted (including the internal header and the <em>padding bytes</em> for MTProto 2.0), prepended by a 32-byte fragment of the authorization key.</p>
-                    <p>In <strong>MTProto 1.0</strong>, message key was defined differently, as the lower 128 bits of the SHA-1 hash of the message to be encrypted, with padding bytes excluded from the computation of the hash. Authorization key was not involved in this computation.</p>
-                    <h4><a class="anchor" name="internal-cryptographic-header" href="#internal-cryptographic-header"><i class="anchor-icon"></i></a>Internal (cryptographic) Header</h4>
+                    <h4><a class="anchor" name="message-key-msg-key" href="#message-key-msg-key"><i class="anchor-icon"></i></a>消息密钥Message Key (msg_key)</h4>
+                    <p>在<strong>MTProto 2.0</strong>中，消息体的SHA-256的中间128位（消息体包含内部头和<em>填充字节</em>)，前置32位的授权密钥片段。</p>
+                    <p>在<strong>MTProto 1.0</strong>中，消息密钥定义不同，是消息体的SHA-1的低128位，消息体也不包含填充字节。授权密钥auth_key也无关的。</p>
+                    <h4><a class="anchor" name="internal-cryptographic-header" href="#internal-cryptographic-header"><i class="anchor-icon"></i></a>内部头Internal (cryptographic) Header</h4>
                     <p>A header (16 bytes) added before a message or a container before it is all encrypted together. Consists of the server salt (64 bits) and the session (64 bits).</p>
-                    <h4><a class="anchor" name="external-cryptographic-header" href="#external-cryptographic-header"><i class="anchor-icon"></i></a>External (cryptographic) Header</h4>
+                    <h4><a class="anchor" name="external-cryptographic-header" href="#external-cryptographic-header"><i class="anchor-icon"></i></a>外部头External (cryptographic) Header</h4>
                     <p>A header (24 bytes) added before an encrypted message or a container. Consists of the key identifier <strong>auth_key_id</strong> (64 bits) and the message key <strong>msg_key</strong> (128 bits).</p>
                     <h4><a class="anchor" name="payload" href="#payload"><i class="anchor-icon"></i></a>Payload</h4>
                     <p>External header + encrypted message or container.</p>
-                    <h3><a class="anchor" name="defining-aes-key-and-initialization-vector" href="#defining-aes-key-and-initialization-vector"><i class="anchor-icon"></i></a>Defining AES Key and Initialization Vector</h3>
-                    <p>The 2048-bit authorization key (auth_key) and the 128-bit message key (msg_key) are used to compute a 256-bit AES key (aes_key) and a 256-bit initialization vector (aes_iv) which are subsequently used to encrypt the part of the message to be encrypted (i. e. everything with the exception of the external header that is added later) with AES-256 in infinite garble extension (IGE) mode.</p>
-                    <p>For MTProto 2.0, the algorithm for computing aes_key and aes_iv from auth_key and msg_key is as follows.</p>
+                    <h3><a class="anchor" name="defining-aes-key-and-initialization-vector" href="#defining-aes-key-and-initialization-vector"><i class="anchor-icon"></i></a>定义AES密钥和初始化向量</h3>
+                    <p>2048位的授权密钥auth_key和128位的消息密钥msg_key用来计算256位的AES密钥aes_key和256位的初始化向量aes_iv。接下来用于加密消息(外部后是加密后才加的)，加密使用AES-256的IGE（infinite garble extension）模式。</p>
+                    <p>MTProto 2.0中，aes_key 和 aes_iv 的计算方式如下：</p>
                     <ul>
                         <li>msg_key_large = SHA256 (substr (auth_key, 88+x, 32) + plaintext + random_padding);</li>
                         <li>msg_key = substr (msg_key_large, 8, 16);</li>
@@ -115,22 +115,22 @@ MTProto v.1.0 is deprecated and is currently being phased…">
                         <li>aes_key = substr (sha256_a, 0, 8) + substr (sha256_b, 8, 16) + substr (sha256_a, 24, 8);</li>
                         <li>aes_iv  = substr (sha256_b, 0, 8) + substr (sha256_a, 8, 16) + substr (sha256_b, 24, 8);</li>
                     </ul>
-                    <p>where x = 0 for messages from client to server and x = 8 for those from server to client.</p>
-                    <p><em>For the obsolete MTProto 1.0, msg_key, aes_key, and aes_iv were computed differently (see <a href="/mtproto/description_v1#defining-aes-key-and-initialization-vector">this document</a> for reference).</em></p>
-                    <p>The lower-order 1024 bits of auth_key are not involved in the computation. They may (together with the remaining bits or separately) be used on the client device to encrypt the local copy of the data received from the server. The 512 lower-order bits of auth_key are not stored on the server; therefore, if the client device uses them to encrypt local data and the user loses the key or the password, data decryption of local data is impossible (even if data from the server could be obtained).</p>
-                    <p>In MTProto 1.0, when AES was used to encrypt a block of data of a length not divisible by 16 bytes, the data was padded with 0 to 15 random padding bytes <strong>random_padding</strong> to a length divisible by 16 bytes prior to encryption. <strong>In MTProto 2.0, this padding is taken into account when computing <code>msg_key</code>. Note that MTProto 2.0 requires from 12 to 1024 bytes of padding, still subject to the condition that the resulting message length be divisible by 16 bytes.</strong></p>
+                    <p>客户端消息加密使用x = 0，服务器消息加密使用x = 8。</p>
+                    <p><em>老版本的MTProto 1.0, msg_key, aes_key, 和 aes_iv 计算方式不同 (see <a href="/mtproto/description_v1#defining-aes-key-and-initialization-vector">this document</a> for reference)。</em></p>
+                    <p>auth_key的低1024位并不参与运算。它们可以（独立或与后面其他位一起）用于客户端加密服务器发过来的数据。auth_key最低的512位服务器不保存； 因此，如果客户端设备使用它们对本地数据进行加密，而用户丢失了密钥或密码，则无法对本地数据进行数据解密（即使可以从服务器获取数据）。</p>
+                    <p>在MTProto 1.0中，加密前数据块长度不可被16bytes整除时，将0到15个字节随机内容<strong>random_padding</strong>填充到数据块尾部，直到可以被16字节整除。 <strong>在 MTProto 2.0中，计算<code>msg_key</code>时会考虑此填充。注意MTProto 2.0需要12到1024字节的填充，但仍需满足计算前数据块长度要被16字节整除的条件。</strong></p>
                     <h3><a class="anchor" name="using-mtproto-2-0-instead-of-mtproto-1-0" href="#using-mtproto-2-0-instead-of-mtproto-1-0"><i class="anchor-icon"></i></a>Using MTProto 2.0 instead of MTProto 1.0</h3>
-                    <p>A client may either use only MTProto 2.0 or only MTProto 1.0 in the same TCP connection. The server detects the protocol used by the first message received from the client, and then uses the same encryption for its messages, and expects the client to use the same encryption henceforth. We recommend using MTProto 2.0; MTProto 1.0 is deprecated and supported for backward compatibility only.</p>
-                    <h3><a class="anchor" name="important-checks" href="#important-checks"><i class="anchor-icon"></i></a>Important Checks</h3>
-                    <p>When an encrypted message is received, it <em>must</em> be checked that <strong>msg_key</strong> is <em>in fact</em> equal to the 128 middle bits of the SHA-256 of the decrypted data with a 32-byte fragment of <strong>auth_key</strong> prepended to it, and that msg_id has even parity for messages from client to server, and odd parity for messages from server to client.</p>
-                    <p>In addition, the identifiers (msg_id) of the last N messages received from the other side must be stored, and if a message comes in with msg_id lower than all or equal to any of the stored values, the message is to be ignored. Otherwise, the new message msg_id is added to the set, and, if the number of stored msg_id values is greater than N, the oldest (i. e. the lowest) is forgotten.</p>
-                    <p>On top of this, msg_id values that belong over 30 seconds in the future or over 300 seconds in the past are to be ignored. This is especially important for the server. The client would also find this useful (to protect from a replay attack), but only if it is certain of its time (for example, if its time has been synchronized with that of the server).</p>
-                    <p>Certain client-to-server service messages containing data sent by the client to the server (for example, msg_id of a recent client query) may, nonetheless, be processed on the client even if the time appears to be “incorrect”. This is especially true of messages to change server_salt and notifications of invalid client time. See <a href="/mtproto/service_messages">Mobile Protocol: Service Messages</a>.</p>
+                    <p>客户端可以在同一TCP连接中仅使用MTProto 2.0或仅使用MTProto 1.0。服务器检测到从客户端收到的第一条消息所使用的协议，然后对其消息使用相同的加密，并期望客户端此后使用相同的加密。 我们建议使用MTProto 2.0。 不推荐使用MTProto 1.0，仅为了向后兼容而支持。</p>
+                    <h3><a class="anchor" name="important-checks" href="#important-checks"><i class="anchor-icon"></i></a>重要检查Important Checks</h3>
+                    <p>当收到一个加密消息，<em>必须</em>检查<strong>msg_key</strong>实际上等于要解密数据的SHA-256的中间128位，并且前置<strong>auth_key</strong>的32字节片段，并且msg_id奇偶校验正确，客户端发给服务器是偶数，服务器发给客户端是奇数。</p>
+                    <p>另外，必须存储从另一侧收到的最后N条消息的标识符（msg_id）。如果消息的msg_id小于所有存储值或等于任何存储值，则该消息将被忽略；否则，将新消息msg_id添加到集合中，如果所存储的msg_id的数量大于N，则忘记最早的消息。</p>
+                    <p>最重要的是，将忽略将来超过30秒或过去超过300秒的msg_id值。 这对于服务器尤其重要。 客户端也将发现此功能很有用（以防止重放攻击），但前提是必须确定其时间（例如，其时间已与服务器的时间同步）。</p>
+                    <p>某些客户端发给服务器的服务消息（Service Messages）包含该客户端发往过服务器的数据（例如，最近客户端查询的msg_id），即使时间似乎是“不正确的”，也可以在客户端上进行处理。对于更改server_salt的消息和无效客户端时间的通知尤其如此。 See <a href="/mtproto/service_messages">Mobile Protocol: Service Messages</a>.</p>
                     <h3><a class="anchor" name="storing-an-authorization-key-on-a-client-device" href="#storing-an-authorization-key-on-a-client-device"><i class="anchor-icon"></i></a>Storing an Authorization Key on a Client Device</h3>
                     <p>It may be suggested to users concerned with security that they password protect the authorization key in approximately the same way as in ssh. This can be accomplished by prepending the value of cryptographic hash function, such as SHA-256, of the key to the front of the key, following which the entire string is encrypted using AES in CBC mode and a key equal to the user’s (text) password. When the user inputs the password, the stored protected password is decrypted and verified by checking the SHA-256 value. From the user’s standpoint, this is practically the same as using an application or a website password.</p>
-                    <h3><a class="anchor" name="unencrypted-messages" href="#unencrypted-messages"><i class="anchor-icon"></i></a>Unencrypted Messages</h3>
-                    <p>Special plain-text messages may be used to create an authorization key as well as to perform a time synchronization. They begin with auth_key_id = 0 (64 bits) which means that there is no auth_key. This is followed directly by the message body in serialized format without internal or external headers. A message identifier (64 bits) and body length in bytes (32 bytes) are added before the message body.</p>
-                    <p>Only a very limited number of messages of special types can be transmitted as plain text. </p>
+                    <h3><a class="anchor" name="unencrypted-messages" href="#unencrypted-messages"><i class="anchor-icon"></i></a>未加密消息Unencrypted Messages</h3>
+                    <p>特殊的纯文本消息可用于创建授权密钥auth_key以及执行时间同步。 这时auth_key_id = 0，这意味着没有auth_key。 它后面直接是序列化的消息正文，没有内部或外部头。 在消息正文之前添加了一个消息标识符（64位）和消息体长度（32字节，以字节为单位）。</p>
+                    <p>只有非常有限的几个特殊类型消息，可以以纯文本传输。</p>
                     <h3><a class="anchor" name="schematic-presentation-of-messages" href="#schematic-presentation-of-messages"><i class="anchor-icon"></i></a>Schematic Presentation of Messages</h3>
                     <h4><a class="anchor" name="encrypted-message" href="#encrypted-message"><i class="anchor-icon"></i></a>Encrypted Message</h4>
                     <table class="table table-bordered table-msg-schema"><tr>
@@ -160,10 +160,10 @@ MTProto v.1.0 is deprecated and is currently being phased…">
                     </tr></table>
 
                     <p><strong>MTProto 2.0 uses 12..1024 padding bytes, instead of the 0..15 used in MTProto 1.0</strong></p>
-                    <h3><a class="anchor" name="creating-an-authorization-key" href="#creating-an-authorization-key"><i class="anchor-icon"></i></a>Creating an Authorization Key</h3>
-                    <p>An authorization key is normally created once for every user during the application installation process immediately prior to registration. Registration itself, in actuality, occurs after the authorization key is created. However, a user may be prompted to complete the registration form while the authorization key is being generated in the background. Intervals between user key strokes may be used as a source of entropy in the generation of high-quality random numbers required for the creation of an authorization key.</p>
+                    <h3><a class="anchor" name="creating-an-authorization-key" href="#creating-an-authorization-key"><i class="anchor-icon"></i></a>创建授权密钥Creating an Authorization Key</h3>
+                    <p>授权密钥通常在应用安装完成打开后，注册之前创建一次，实际上注册是在创建授权密钥之后发生的。 但是，当在后台生成授权密钥时，可能会提示用户填写注册表格。 用户敲键之间的间隔可以用作生成授权密钥所需的高质量随机数的熵源。</p>
                     <p>See <a href="/mtproto/auth_key">Creating an Authorization Key</a>.</p>
-                    <p>During the creation of the authorization key, the client obtains its server salt (to be used with the new key for all communication in the near future). The client then creates an encrypted session using the newly generated key, and subsequent communication occurs within that session (including the transmission of the user&#39;s registration information and phone number validation) unless the client creates a new session. The client is free to create new or additional sessions at any time by choosing a new random session_id.</p>
+                    <p>在创建授权密钥的过程中，客户端将获取其服务器盐（将与新密钥一起用于接下来的所有通信）。 然后，客户端使用新生成的密钥创建一个加密的会话，随后的通信将在该会话内进行（包括用户注册信息的传输和电话号码验证），直到客户端创建了新的会话。客户端可以随时选择一个新的随机session_id来自由创建新会话或其他会话。</p>
                 </div>
 
             </div>
