@@ -40,91 +40,108 @@
                         <div class="dev_page_bread_crumbs"><ul class="breadcrumb clearfix"><li><a  href="/mtproto" >Mobile Protocol</a></li><i class="icon icon-breadcrumb-divider"></i><li><a  href="/mtproto/auth_key" >﻿Creating an Authorization Key</a></li></ul></div>
                         <h1 id="dev_page_title" dir="auto">﻿创建授权密钥Creating an Authorization Key</h1>
                         
-                        <div id="dev_page_content" dir="auto"><p>查询格式由<a href="/mtproto/serialize">Binary Data Serialization</a>和<a href="/mtproto/TL">TL Language</a>进行描述。所有大数字都以字符串形式传输，大字节序排列。哈希函数例如SHA1，返回字符串（20字节），也可以被解释为大字节序数字。小数字（<code>int</code>，<code>long</code>，<code>int128</code>，<code>int256</code>）通常是小字节序；但是，如果他们是SHA1的一部分，则不会重新排列字节。这样，如果<code>long</code>型变量<code>x</code>是字符串<code>s</code>的SHA1的低64位，则<code>SHA1(s)</code>的20位字符串的<em>最后</em>8字节被采用，解释为64位整数。</p>
+                        <div id="dev_page_content" dir="auto"><p>查询格式由 <a href="/mtproto/serialize">Binary Data Serialization</a> 和 <a href="/mtproto/TL">TL Language</a> 进行描述。所有大数字都以字符串形式传输，大字节序排列。哈希函数例如SHA1，返回字符串（20字节），也可以被解释为大字节序数字。小数字（<code>int</code>，<code>long</code>，<code>int128</code>，<code>int256</code>）通常是小字节序；但是，如果他们是SHA1的一部分，则不会重新排列字节。这样，如果<code> long x </code>是字符串<code>s</code>的SHA1的低64位，则取<code>SHA1(s)</code>20位字符串的<em>最后</em>8字节，将其直接解释成64位整数。</p>
                             <p>在发送未加密的消息（在这种情况下要求生成授权密钥）之前，客户端必须进行如下的（p，q）授权。</p>
-                            <h4><a class="anchor" name="dh-exchange-initiation" href="#dh-exchange-initiation"><i class="anchor-icon"></i></a>DH交换开始DH exchange initiation</h4>
-                            <p>1) 客户端发送查询</p>
+                            <h4><a class="anchor" name="dh-exchange-initiation" href="#dh-exchange-initiation"><i class="anchor-icon"></i></a>准备DH交换DH exchange initiation</h4>
+                            <p>1) 客户端发送req_pq_multi</p>
                             <pre><code>req_pq_multi#be7e8ef1 nonce:int128 = ResPQ;</code></pre>
                             <p>or (deprecated)</p>
                             <pre><code>req_pq#60469778 nonce:int128 = ResPQ;</code></pre>
-                            <p><em>nonce</em>是客户端生成的随机数，并在此后的通讯中标识客户端。</p>
-                            <p>2) 服务器发送响应</p>
+                            <p><em>nonce</em>是客户端生成的随机数，并在此后的通讯中标识客户端。服务器会透传回nonce值。</p>
+                            <p>2) 服务器响应resPQ</p>
                             <pre><code>resPQ#05162463 nonce:int128 server_nonce:int128 pq:string server_public_key_fingerprints:Vector long = ResPQ;</code></pre>
-                            <p>这里，字符串pq是自然数的表示形式（采用二进制大尾数格式）。 该数字是两个不同的质数的之积。 通常小于等于2 ^ 63-1。 <em>server_nonce</em>是服务器随机数。</p>
-                            <p><code>server_public_key_fingerprints</code> is a list of public RSA key fingerprints (64 lower-order bits of SHA1 (server_public_key); the public key is represented as a bare type <code>rsa_public_key n:string e:string = RSAPublicKey</code>, where, as usual, n and е are numbers in big endian format serialized as strings of bytes, following which SHA1 is computed) received by the server. Because of compatibility issues with older clients, only one public key fingerprint is returned as a result to deprecated <code>req_pq</code> query; an answer to <code>req_pq_multi</code> may contain more than one fingerprint.</p>
-                            <p>All subsequent messages contain the pair (nonce, server_nonce) both in the plain-text, and the encrypted portions which makes it possible to identify a “temporary session” — one run of the key generation protocol described on this page that uses the same (nonce, server_nonce) pair. An intruder could not create a parallel session with the server with the same parameters and reuse parts of server- or client-encrypted messages for its own purposes in such a parallel session, because a different server_nonce would be selected by the server for any new “temporary session”.</p>
-                            <h4><a class="anchor" name="proof-of-work" href="#proof-of-work"><i class="anchor-icon"></i></a>Proof of work</h4>
-                            <p>3) Client decomposes pq into prime factors such that p &lt; q.</p>
-                            <p>This starts a round of Diffie-Hellman key exchanges.</p>
-                            <h4><a class="anchor" name="presenting-proof-of-work-server-authentication" href="#presenting-proof-of-work-server-authentication"><i class="anchor-icon"></i></a>Presenting proof of work; Server authentication</h4>
-                            <p>4) Client sends query to server</p>
+                            <p>字符串pq是个二进制大端格式编码的自然数。 该数字是两个不同的质数的乘积。 通常pq小于等于2 ^ 63-1。 <em>server_nonce</em>是服务器随机数。</p>
+                            <p><code>server_public_key_fingerprints</code>是RSA公钥指纹列表（SHA1的64个低位 (server_public_key); 公钥被表示为裸类型<code>rsa_public_key n:string e:string = RSAPublicKey</code>, 通常，n和е是大字节序格式的数字，序列化为字节串，然后计算SHA1）。为兼容老版本客户端，废弃的<code>req_pq</code>查询只返回一个公钥指纹；<code>req_pq_multi</code>查询会返回多个公钥指纹。</p>
+                            <p>客户端打包时会预埋一些RSA公钥，客户端通过收到的server_public_key_fingerprints选择预埋的公钥进行后续流程。</p>
+                            <p>后续所有消息的纯文本和加密部分都包含（nonce，server_nonce），这样可以标识一个“临时会话”，本文说的密钥协议的一次运行使用相同的（nonce，server_nonce）对。入侵者无法与服务器使用相同参数创建一个并行会话，因为服务器会用一个不同的server_nonce创建“临时会话”。</p>
+                            <p>一次运行指的是从开始创建auth_key到auth_key创建结束，可以这么理解，一旦开始创建，要么成功要么失败，一旦失败又需要重新发起。</p>
+                            <p>这一步也是明文交换</p>
+                            <h4><a class="anchor" name="proof-of-work" href="#proof-of-work"><i class="anchor-icon"></i></a>工作量证明Proof of work</h4>
+                            <p>3) 客户端将pq分解为素数因子，使得p &lt; q。</p>
+                            <p>这将启动一轮Diffie-Hellman密钥交换。</p>
+                            <h4><a class="anchor" name="presenting-proof-of-work-server-authentication" href="#presenting-proof-of-work-server-authentication"><i class="anchor-icon"></i></a>出示工作量证明；服务器认证Presenting proof of work; Server authentication</h4>
+                            <p>4) 客户端发送查询req_DH_params</p>
                             <pre><code>req_DH_params#d712e4be nonce:int128 server_nonce:int128 p:string q:string public_key_fingerprint:long encrypted_data:string = Server_DH_Params</code></pre>
-                            <p>Here, encrypted_data is obtained as follows:</p>
+                            <p>encrypted_data获得方式如下：</p>
                             <ul>
-                                <li>new_nonce := another (good) random number generated by the client; after this query, it is known to both client and server;</li>
-                                <li><p>data := a serialization of </p>
+                                <li>new_nonce := 客户端生成新的随机数</li>
+                                <li><p>data := 序列化的 </p>
                                     <pre><code>p_q_inner_data#83c95aec pq:string p:string q:string nonce:int128 server_nonce:int128 new_nonce:int256 = P_Q_inner_data</code></pre>
-                                    <p>or of</p>
+                                    <p>或者</p>
                                     <pre><code>p_q_inner_data_temp#3c6a84d4 pq:string p:string q:string nonce:int128 server_nonce:int128 new_nonce:int256 expires_in:int = P_Q_inner_data;</code></pre>
                                 </li>
                             </ul>
                             <ul>
-                                <li>data_with_hash := SHA1(data) + data + (any random bytes); such that the length equal 255 bytes;</li>
+                                <li>data_with_hash := SHA1(data) + data + (any random bytes); 随机字节填充使得长度等于255字节。</li>
                                 <li>encrypted_data := RSA (data_with_hash, server_public_key); a 255-byte long number (big endian) is raised to the requisite power over the requisite modulus, and the result is stored as a 256-byte number.</li>
                             </ul>
                             <p>Someone might intercept the query and replace it with their own, independently decomposing pq into factors instead of the client. The only field that it makes sense to modify is new_nonce which would be the one an intruder would have to re-generate (because an intruder cannot decrypt the encrypted data sent by the client). Since all subsequent messages are encrypted using new_nonce or contain new_nonce_hash, they will not be processed by the client (an intruder would not be able to make it look as though they had been generated by the server because they would not contain new_nonce). Therefore, this intercept will only result in the intruder’s completing the authorization key generation protocol in place of the client and creating a new key (that has nothing to do with the client); however, the same effect could be achieved simply by creating a new key in one&#39;s own name.</p>
                             <p>An alternative form of inner data (<code>p_q_inner_data_temp</code>) is used to create temporary keys, that are only stored in the server RAM and are discarded after at most <code>expires_in</code> seconds. The server is free to discard its copy earlier. In all other respects the temporary key generation protocol is the same. After a temporary key is created, the client usually binds it to its principal authorisation key by means of the <a href="/method/auth.bindTempAuthKey">auth.bindTempAuthKey</a> method, and uses it for all client-server communication until it expires; then a new temporary key is generated. Thus Perfect Forward Secrecy (PFS) in client-server communication is achieved. <a href="/api/pfs">Read more about PFS »</a></p>
-                            <p>5) Server responds in one of two ways:</p>
+                            <p>5) 服务器以两种方式之一响应：</p>
                             <pre><code>server_DH_params_fail#79cb045d nonce:int128 server_nonce:int128 new_nonce_hash:int128 = Server_DH_Params;
-                                server_DH_params_ok#d0e8075c nonce:int128 server_nonce:int128 encrypted_answer:string = Server_DH_Params;</code></pre>
-                            <p>Here, encrypted_answer is obtained as follows:</p>
+server_DH_params_ok#d0e8075c nonce:int128 server_nonce:int128 encrypted_answer:string = Server_DH_Params;</code></pre>
+                            <p>encrypted_answer获取方式如下：</p>
                             <ul>
-                                <li>new_nonce_hash := 128 lower-order bits of SHA1 (new_nonce);</li>
-                                <li><p>answer := serialization </p>
-                                    <pre><code>  server_DH_inner_data#b5890dba nonce:int128 server_nonce:int128 g:int dh_prime:string g_a:string server_time:int = Server_DH_inner_data;</code></pre>
+                                <li>new_nonce_hash := SHA1（new_nonce）的低128位；</li>
+                                <li><p>answer := 序列化的 </p>
+                                    <pre><code>server_DH_inner_data#b5890dba nonce:int128 server_nonce:int128 g:int dh_prime:string g_a:string server_time:int = Server_DH_inner_data;</code></pre>
                                 </li>
-                                <li><p>answer_with_hash := SHA1(answer) + answer + (0-15 random bytes); such that the length be divisible by 16;</p>
+                                <li><p>answer_with_hash := SHA1(answer) + answer +（0-15个随机字节）； 使字节长度可以被16整除;</p>
                                 </li>
                                 <li>tmp_aes_key := SHA1(new_nonce + server_nonce) + substr (SHA1(server_nonce + new_nonce), 0, 12);</li>
                                 <li>tmp_aes_iv := substr (SHA1(server_nonce + new_nonce), 12, 8) + SHA1(new_nonce + new_nonce) + substr (new_nonce, 0, 4);</li>
-                                <li>encrypted_answer := AES256_ige_encrypt (answer_with_hash, tmp_aes_key, tmp_aes_iv); here, tmp_aes_key is a 256-bit key, and  tmp_aes_iv is a 256-bit initialization vector. The same as in all the other instances that use AES encryption, the encrypted data is padded with random bytes to a length divisible by 16 immediately prior to encryption.</li>
+                                <li>encrypted_answer := AES256_ige_encrypt (answer_with_hash, tmp_aes_key, tmp_aes_iv); 这里，tmp_aes_key是一个256位的密钥，而tmp_aes_iv是一个256位的初始化向量。与所有使用AES加密的其他实例一样，加密数据在加密之前被随机字节填充为16之前可被整除的长度。</li>
                             </ul>
-                            <p>Following this step, new_nonce is still known to client and server only. The client is certain that it is the server that responded and that the response was generated specifically in response to client query req_DH_params, since the response data are encrypted using new_nonce.</p>
-                            <p>Client is expected to check whether <strong>p = dh_prime</strong> is a safe 2048-bit prime (meaning that both <strong>p</strong> and <strong>(p-1)/2</strong> are prime, and that 2^2047 &lt; p &lt; 2^2048), and that <strong>g</strong> generates a cyclic subgroup of prime order <strong>(p-1)/2</strong>, i.e. is a quadratic residue <strong>mod p</strong>. Since <strong>g</strong> is always equal to 2, 3, 4, 5, 6 or 7, this is easily done using quadratic reciprocity law, yielding a simple condition on <strong>p mod 4g</strong> — namely, <strong>p mod 8 = 7</strong> for <strong>g = 2</strong>; <strong>p mod 3 = 2</strong> for <strong>g = 3</strong>; no extra condition for <strong>g = 4</strong>; <strong>p mod 5 = 1 or 4</strong> for <strong>g = 5</strong>; <strong>p mod 24 = 19 or 23</strong> for <strong>g = 6</strong>; and <strong>p mod 7 = 3, 5 or 6</strong> for <strong>g = 7</strong>. After <strong>g</strong> and <strong>p</strong> have been checked by the client, it makes sense to cache the result, so as not to repeat lengthy computations in future.</p>
-                            <p>If the verification takes too long time (which is the case for older mobile devices), one might initially run only 15 Miller—Rabin iterations for verifying primeness of <strong>p</strong> and <strong>(p - 1)/2</strong> with error probability not exceeding one billionth, and do more iterations later in the background.</p>
-                            <p>Another optimization is to embed into the client application code a small table with some known “good” couples <strong>(g,p)</strong> (or just known safe primes <strong>p</strong>, since the condition on <strong>g</strong> is easily verified during execution), checked during code generation phase, so as to avoid doing such verification during runtime altogether. Server changes these values rarely, thus one usually has to put the current value of server&#39;s <strong>dh_prime</strong> into such a table. For example, current value of <strong>dh_prime</strong> equals (in big-endian byte order)</p>
-                            <pre><code>C7 1C AE B9 C6 B1 C9 04 8E 6C 52 2F 70 F1 3F 73 98 0D 40 23 8E 3E 21 C1 49 34 D0 37 56 3D 93 0F 48 19 8A 0A A7 C1 40 58 22 94 93 D2 25 30 F4 DB FA 33 6F 6E 0A C9 25 13 95 43 AE D4 4C CE 7C 37 20 FD 51 F6 94 58 70 5A C6 8C D4 FE 6B 6B 13 AB DC 97 46 51 29 69 32 84 54 F1 8F AF 8C 59 5F 64 24 77 FE 96 BB 2A 94 1D 5B CD 1D 4A C8 CC 49 88 07 08 FA 9B 37 8E 3C 4F 3A 90 60 BE E6 7C F9 A4 A4 A6 95 81 10 51 90 7E 16 27 53 B5 6B 0F 6B 41 0D BA 74 D8 A8 4B 2A 14 B3 14 4E 0E F1 28 47 54 FD 17 ED 95 0D 59 65 B4 B9 DD 46 58 2D B1 17 8D 16 9C 6B C4 65 B0 D6 FF 9C A3 92 8F EF 5B 9A E4 E4 18 FC 15 E8 3E BE A0 F8 7F A9 FF 5E ED 70 05 0D ED 28 49 F4 7B F9 59 D9 56 85 0C E9 29 85 1F 0D 81 15 F6 35 B1 05 EE 2E 4E 15 D0 4B 24 54 BF 6F 4F AD F0 34 B1 04 03 11 9C D8 E3 B9 2F CC 5B</code></pre>
-                            <p>6) Client computes random 2048-bit number <em>b</em> (using a sufficient amount of entropy) and sends the server a message</p>
+                            <p>这一步之后，new_nonce仍然仅仅只有客户端和服务端可见。客户端可以确信是合法的服务端，并且响应是专门为响应客户端查询req_DH_params而生成的，因为响应数据是使用new_nonce加密的。</p>
+                            <p>客户端要检查<strong>p = dh_prime</strong>是否是个安全的2048位素数（意思是<strong>p</strong>和<strong>(p-1)/2</strong>都是素数，并且2^2047 &lt; p &lt; 2^2048），并且<strong>g</strong>生成<strong>(p-1)/2</strong>的循环子群，即二次余数<strong>mod p</strong>。因为<strong>g</strong>总是等于2, 3, 4, 5, 6或7，这很容易用二次互易定律完成，在<strong>p mod 4g</strong>上产生一个简单的条件 — 也就是说：</p>
+                            <p>对于<strong>g = 2</strong>，<strong>p mod 8 = 7</strong>；</p>
+                            <p>对于<strong>g = 3</strong>，<strong>p mod 3 = 2</strong>；</p>
+                            <p><strong>g = 4</strong>没有额外的条件；</p>
+                            <p>对于<strong>g = 5</strong>，<strong>p mod 5 = 1 或 4</strong>；</p>
+                            <p>对于<strong>g = 6</strong>，<strong>p mod 24 = 19 或 23</strong>；</p>
+                            <p>对于<strong>g = 7</strong>，<strong>p mod 7 = 3, 5 或 6</strong>；</p>
+                            <p>客户端检查了<strong>g</strong> 和 <strong>p</strong>之后，可以缓存结果，这样就不用重复计算。</p>
+                            <p>如果验证花费的时间太长（对于较旧的移动设备），可能最初只运行15次Miller-Rabin迭代来验证<strong>p</strong>和<strong>(p - 1)/2</strong>是素数，错误概率不超过十亿分之一，稍后在后台做更多的迭代。</p>
+                            <p>另一个优化是，客户端代码里嵌入一些已知的好用的<strong>(g,p)</strong>对（或者仅嵌入已知的安全素数<strong>p</strong>，因为<strong>g</strong>执行期容易验证），以避免在运行时进行这样的验证。 服务器很少更改这些值，因此通常将服务器的<strong>dh_prime</strong>当前值放置在表中。例如，<strong>dh_prime</strong>的当前值等于（大端字节序）</p>
+                            <pre><code>C7 1C AE B9 C6 B1 C9 04 8E 6C 52 2F 70 F1 3F 73 98 0D 40 23 8E 3E 21 C1 49 34 D0 37 56 3D 93 0F
+48 19 8A 0A A7 C1 40 58 22 94 93 D2 25 30 F4 DB FA 33 6F 6E 0A C9 25 13 95 43 AE D4 4C CE 7C 37
+20 FD 51 F6 94 58 70 5A C6 8C D4 FE 6B 6B 13 AB DC 97 46 51 29 69 32 84 54 F1 8F AF 8C 59 5F 64
+24 77 FE 96 BB 2A 94 1D 5B CD 1D 4A C8 CC 49 88 07 08 FA 9B 37 8E 3C 4F 3A 90 60 BE E6 7C F9 A4
+A4 A6 95 81 10 51 90 7E 16 27 53 B5 6B 0F 6B 41 0D BA 74 D8 A8 4B 2A 14 B3 14 4E 0E F1 28 47 54
+FD 17 ED 95 0D 59 65 B4 B9 DD 46 58 2D B1 17 8D 16 9C 6B C4 65 B0 D6 FF 9C A3 92 8F EF 5B 9A E4
+E4 18 FC 15 E8 3E BE A0 F8 7F A9 FF 5E ED 70 05 0D ED 28 49 F4 7B F9 59 D9 56 85 0C E9 29 85 1F
+0D 81 15 F6 35 B1 05 EE 2E 4E 15 D0 4B 24 54 BF 6F 4F AD F0 34 B1 04 03 11 9C D8 E3 B9 2F CC 5B</code></pre>
+                            <p>6) 客户端生成一个2048位的随机数<em>b</em>，并向服务器发送</p>
                             <pre><code>set_client_DH_params#f5045f1f nonce:int128 server_nonce:int128 encrypted_data:string = Set_client_DH_params_answer;</code></pre>
-                            <p>Here, encrypted_data is obtained thus:</p>
+                            <p>encrypted_data获取方式如下：</p>
                             <ul>
                                 <li>g_b := pow(g, b) mod dh_prime;</li>
-                                <li><p>data := serialization </p>
-                                    <pre><code>  client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:string = Client_DH_Inner_Data</code></pre>
+                                <li><p>data := 序列化的 </p>
+                                    <pre><code>client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:string = Client_DH_Inner_Data</code></pre>
                                 </li>
-                                <li><p>data_with_hash := SHA1(data) + data + (0-15 random bytes); such that length be divisible by 16;</p>
+                                <li><p>data_with_hash := SHA1(data) + data + (0-15随机填充字节)；16字节对齐；</p>
                                 </li>
                                 <li>encrypted_data := AES256_ige_encrypt (data_with_hash, tmp_aes_key, tmp_aes_iv);</li>
                             </ul>
-                            <p>The retry_id field is equal to zero at the time of the first attempt; otherwise, it is equal to auth_key_aux_hash from the previous failed attempt (see Item  9).</p>
-                            <p>7) Thereafter, auth_key equals <code>pow(g, {ab}) mod dh_prime</code>; on the server, it is computed as <code>pow(g_b, a) mod dh_prime</code>, and on the client as <code>(g_a)^b mod dh_prime</code>.</p>
-                            <p>8) auth_key_hash is computed := 64 lower-order bits of SHA1 (auth_key). The server checks whether there already is another key with the same auth_key_hash and responds in one of the following ways.</p>
-                            <h4><a class="anchor" name="dh-key-exchange-complete" href="#dh-key-exchange-complete"><i class="anchor-icon"></i></a>DH key exchange complete</h4>
-                            <p>9) Server responds in one of three ways:</p>
+                            <p>retry_id第一次尝试时等于0；否则，它等于上次尝试失败时的auth_key_aux_hash (参阅第9项)。</p>
+                            <p>7) 此后，auth_key等于<code>pow(g, {ab}) mod dh_prime</code>；服务器由<code>pow(g_b, a) mod dh_prime</code>计算出结果，客户端由<code>(g_a)^b mod dh_prime</code>计算出结果。</p>
+                            <p>8) auth_key_hash是SHA1 (auth_key)的低64位。服务器检查是否已经存在相同的auth_key_hash，并以下列方式之一进行响应。</p>
+                            <h4><a class="anchor" name="dh-key-exchange-complete" href="#dh-key-exchange-complete"><i class="anchor-icon"></i></a>DH密钥交换完成 DH key exchange complete</h4>
+                            <p>9) 服务器响应的3种方式：</p>
                             <pre><code>dh_gen_ok#3bcbf734 nonce:int128 server_nonce:int128 new_nonce_hash1:int128 = Set_client_DH_params_answer;
-                                dh_gen_retry#46dc1fb9 nonce:int128 server_nonce:int128 new_nonce_hash2:int128 = Set_client_DH_params_answer;
-                                dh_gen_fail#a69dae02 nonce:int128 server_nonce:int128 new_nonce_hash3:int128 = Set_client_DH_params_answer;</code></pre>
+dh_gen_retry#46dc1fb9 nonce:int128 server_nonce:int128 new_nonce_hash2:int128 = Set_client_DH_params_answer;
+dh_gen_fail#a69dae02 nonce:int128 server_nonce:int128 new_nonce_hash3:int128 = Set_client_DH_params_answer;</code></pre>
                             <ul>
-                                <li>new_nonce_hash1, new_nonce_hash2, and new_nonce_hash3 are obtained as the 128 lower-order bits of SHA1 of the byte string derived from the new_nonce string by adding a single byte with the value of 1, 2, or 3, and followed by another 8 bytes with auth_key_aux_hash. Different values are required to prevent an intruder from changing server response dh_gen_ok into dh_gen_retry.</li>
-                                <li>auth_key_aux_hash is the 64 <em>higher-order</em> bits of SHA1(auth_key). It must not be confused with auth_key_hash.</li>
+                                <li>new_nonce_hash1, new_nonce_hash2, 和 new_nonce_hash3 是从new_nonce派生出来的3个字符串的SHA1的低128位，派生方法是new_nonce添加1，2或3这单个字节，随后添加auth_key_aux_hash的8个字节。不同的值来防止入侵者将服务器响应由dh_gen_ok修改为dh_gen_retry。</li>
+                                <li>auth_key_aux_hash是SHA1(auth_key)的64个高位。不能与auth_key_hash混淆。</li>
                             </ul>
-                            <p>In the other case, the client goes to Item  6) generating a new <em>b</em>.<br>In the first case, the client and the server have negotiated auth_key, following which they forget all other temporary data, and the client creates another encrypted session using auth_key. At the same time, server_salt is initially set to <code>substr(new_nonce, 0, 8) XOR substr(server_nonce, 0, 8)</code>. If required, the client stores the difference between server_time received in 5) and its local time, to be able always to have a good approximation of server time which is required to generate correct message identifiers.</p>
-                            <p><strong>IMPORTANT</strong>: Apart from the conditions on the Diffie-Hellman prime <strong>dh_prime</strong> and generator <strong>g</strong>, both sides are to check that <strong>g</strong>, <strong>g_a</strong> and <strong>g_b</strong> are greater than <strong>1</strong> and less than <strong>dh_prime - 1</strong>. We recommend checking that <strong>g_a</strong> and <strong>g_b</strong> are between <strong>2^{2048-64}</strong> and <strong>dh_prime - 2^{2048-64}</strong> as well.</p>
-                            <h4><a class="anchor" name="error-handling-lost-queries-and-responses" href="#error-handling-lost-queries-and-responses"><i class="anchor-icon"></i></a>Error Handling (Lost Queries and Responses)</h4>
-                            <p>If the client fails to receive any response to its query from the server within a certain time interval, it may simply re-send the query. If the server has already sent a response to this query (*exactly* the same request and not just similar: all the parameters during the repeat request must take on the same values) but it did not get to the client, the server will simply re-send the same response. The server remembers the response for up to 10 minutes after having received the query in 1). If the server has already forgotten the response or the requisite temporary data, the client will have to start from the beginning.</p>
-                            <p>The server may consider that if the client has already sent in the next query using the data from the previous server response to the specific client, the response is known to have been received by the client and may be forgotten by the server.</p>
-                            <h4><a class="anchor" name="usage-example" href="#usage-example"><i class="anchor-icon"></i></a>Usage Example</h4>
-                            <p>An example of a complete list of queries required to generate an authorization key is shown on <a href="/mtproto/samples-auth_key">a separate page</a>.</p>
+                            <p>另一种情况下，客户端会去步骤 6) 重新生成新的 <em>b</em>.<br>在第一种情况下，客户端和服务器已经协商好了auth_key，接下来就放弃所有临时数据，客户端使用auth_key创建另一个加密会话。同时server_salt 初始设置为<code>substr(new_nonce, 0, 8) XOR substr(server_nonce, 0, 8)</code>。需要的话，客户端存储第5步收到的server_time与本机时间差，用作客户端时间矫正和生成msg_id。</p>
+                            <p><strong>重要</strong>：除了 Diffie-Hellman 素数 <strong>dh_prime</strong> 和 <strong>g</strong> 生成器的条件外，双方都应检查 <strong>g</strong>，<strong>g_a</strong> 和 <strong>g_b</strong> 大于 <strong>1</strong> 并且小于 <strong>dh_prime - 1</strong>。我们建议检查 <strong>g_a</strong> 和 <strong>g_b</strong> 介于 <strong>2^{2048-64}</strong> 和 <strong>dh_prime - 2^{2048-64}</strong> 之间。</p>
+                            <h4><a class="anchor" name="error-handling-lost-queries-and-responses" href="#error-handling-lost-queries-and-responses"><i class="anchor-icon"></i></a>错误处理 Error Handling (Lost Queries and Responses)</h4>
+                            <p>如果客户端在一定的时间内没有收到服务器的响应，则可以重新发送查询。 如果服务器已经响应了这个查询（完全相同的请求，不是相似：重发请求的所有参数必须相同），但是没有到达客户端，服务器只需重新发送相同的响应。服务器会记录第 1) 步中的响应最多10分钟。如果服务器忘记了响应或必要的临时数据，客户端就得从头开始了。</p>
+                            <p>服务器端可以认为，如果客户端用上一个服务器响应的数据做了下一步查询，则客户端已经接收了消息，服务器可以删掉缓存。</p>
+                            <h4><a class="anchor" name="usage-example" href="#usage-example"><i class="anchor-icon"></i></a>用法示例 Usage Example</h4>
+                            <p>生成授权密钥需要的所有接口列表示例：<a href="/mtproto/samples-auth_key">创建授权密钥用法示例</a>。</p>
                         </div>
                         
                     </div>
