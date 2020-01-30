@@ -40,12 +40,12 @@ If a payload (packet) needs to be transmitted from server to client…">
         <div class="dev_page">
           <div id="dev_page_content_wrap" class=" ">
   <div class="dev_page_bread_crumbs"><ul class="breadcrumb clearfix"><li><a  href="/mtproto" >Mobile Protocol</a></li><i class="icon icon-breadcrumb-divider"></i><li><a  href="/mtproto/samples-auth_key" >samples-auth_key</a></li></ul></div>
-  <h1 id="dev_page_title" dir="auto">samples-auth_key</h1>
+  <h1 id="dev_page_title" dir="auto">授权密钥样例 samples-auth_key</h1>
   
-  <div id="dev_page_content" dir="auto"><p>In the examples below, the <a href="/mtproto#transport">transport</a> headers are omitted:</p>
+  <div id="dev_page_content" dir="auto"><p>下面例子中，省略了 <a href="/mtproto#transport">transport</a> headers：</p>
 <blockquote>
-<p>If a payload (packet) needs to be transmitted from server to client or from client to server, it is encapsulated as follows: 4 bytes are added at the front (to include the length, the sequence number, and CRC32; always divisible by 4) and 4 bytes with the packet sequence number for this TCP connection (the first packet sent is numbered 0, the next one 1, etc.), and 4 CRC32 bytes at the end (length, sequence number, and payload together).</p>
-<p>There is an abridged version of the same protocol: if the client sends <code>0xef</code> as the first byte (<strong>important:</strong> only prior to the very first data packet), then packet length is encoded by a single byte (<code>0x01-0x7e</code> = data length divided by 4; or <code>0x7f</code> followed by 3 bytes (little endian) divided into 4) followed by the data themselves (sequence number and CRC32 not added). In this case, server responses have the same form (although the server does not send <code>0xef</code>as the first byte).</p>
+<p>包传输时，封装如下：在前面添加4字节（包括长度，序列号和CRC32；4字节对齐），此TCP连接的4字节的包序列号（0,1,2...），末尾添加4字节的CRC32（长度，序列号和原数据一起）。</p>
+<p>精简版协议：如果客户端发送 <code>0xef</code> 做首字节（<strong>重要：</strong> 仅在第一个数据包之前），则数据包长度由单字节表示（<code>0x01-0x7e</code> = 数据长度除以4；或3字节后跟 <code>0x7f</code>  （小字节序），也是除以4） ，后跟原数据（不添加序列号和CRC32）。这种情况下，服务器以相同的形式来响应（尽管服务器不发送 <code>0xef</code> 作首字节）。</p>
 </blockquote>
 <p>Detailed documentation on creating authorization keys is available <a href="/mtproto/auth_key">here &raquo;</a>.</p>
 <h4><a class="anchor" name="1-request-for-p-q-authorization" href="#1-request-for-p-q-authorization"><i class="anchor-icon"></i></a>1. Request for (p,q) Authorization</h4>

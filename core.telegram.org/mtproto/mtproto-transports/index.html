@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>MTProto transports</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="description" content="Here&#39;s a list of MTProto transport protocols (see the ISO/OSI recap for a full explanation):
+Abridged
+Intermediate
+Padded…">
+    <meta property="og:title" content="MTProto transports">
+    <meta property="og:image" content="4a92b4139362e9f113">
+    <meta property="og:description" content="Here&#39;s a list of MTProto transport protocols (see the ISO/OSI recap for a full explanation):
+Abridged
+Intermediate
+Padded…">
+    <link rel="shortcut icon" href="/favicon.ico?3" type="image/x-icon" />
+
+    <link href="/css/bootstrap.min.css?3" rel="stylesheet">
+    
+    <link href="/css/telegram.css?178" rel="stylesheet" media="screen">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div class="dev_page_wrap">
+      <div class="dev_page_head navbar navbar-static-top navbar-tg">
+        <div class="navbar-inner">
+          <div class="container clearfix">
+            <ul class="nav navbar-nav navbar-right hidden-xs"><li class="navbar-twitter"><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)"><i class="icon icon-twitter"></i><span> Twitter</span></a></li></ul>
+            <ul class="nav navbar-nav">
+              <li><a href="//telegram.org/">Home</a></li>
+<li class="hidden-xs"><a href="//telegram.org/faq">FAQ</a></li>
+<li class="hidden-xs"><a href="//telegram.org/apps">Apps</a></li>
+<li class=""><a href="/api">API</a></li>
+<li class="active"><a href="/mtproto">Protocol</a></li>
+<li class=""><a href="/schema">Schema</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="container clearfix">
+        <div class="dev_page">
+          <div id="dev_page_content_wrap" class=" ">
+  <div class="dev_page_bread_crumbs"><ul class="breadcrumb clearfix"><li><a  href="/mtproto" >Mobile Protocol</a></li><i class="icon icon-breadcrumb-divider"></i><li><a  href="/mtproto/mtproto-transports" >MTProto transports</a></li></ul></div>
+  <h1 id="dev_page_title" dir="auto">MTProto 传输模式 MTProto transports</h1>
+  
+  <div id="dev_page_content" dir="auto"><!-- scroll_nav -->
+
+<p>下面是MTProto的传输模式（<a href="/mtproto#recap">查看ISO/OSI概述</a>）：</p>
+<ul>
+<li><a href="#abridged">精简模式 Abridged</a></li>
+<li><a href="#intermediate">中间模式 Intermediate</a></li>
+<li><a href="#padded-intermediate">带填充的中间模式 Padded intermediate</a></li>
+<li><a href="#full">完整模式 Full</a></li>
+</ul>
+<p>服务器通过header识别这些不同的协议（与HTTP有区分），另外可以使用以下传输功能：</p>
+<ul>
+<li><a href="#quick-ack">Quick ack</a></li>
+<li><a href="#transport-errors">Transport errors</a></li>
+<li><a href="#transport-obfuscation">Transport obfuscation</a></li>
+</ul>
+<p>这些协议的实现可以参考 <a href="https://github.com/tdlib/td/blob/master/td/mtproto/TcpTransport.cpp">tdlib</a> 和 <a href="https://github.com/danog/MadelineProto/tree/master/src/danog/MadelineProto/Stream/MTProtoTransport">MadelineProto</a>。</p>
+<h3><a class="anchor" href="#abridged" id="abridged"><i class="anchor-icon"></i></a>精简模式 Abridged</h3>
+<p>最轻量的。</p>
+<ul>
+<li>总开销：非常小 </li>
+<li>信封最小长度：1字节</li>
+<li>信封最大长度：4字节</li>
+</ul>
+<p>Payload结构</p>
+<pre><code>+-+----...----+
+|l|  payload  |
++-+----...----+
+OR
+
++-+---+----...----+
+|h|len|  payload  +
++-+---+----...----+</code></pre>
+<p>发送 <em>任何</em> 数据到Socket之前（查阅 <a href="/mtproto/transports">transports</a>），客户端必须首先发送 <code>0xef</code> 作为首字节（服务器第1次回应 <strong>不会</strong> 发送 <code>0xef</code> 作为首字节）。<br>
+然后，将有效载荷payload包装进下面信封里：</p>
+<ul>
+<li>Length: payload长度，除以4，如果长度在1-126之间<code>0x01..0x7e</code>，编码成单字节。</li>
+<li>Payload: MTProto有效载荷</li>
+</ul>
+<p>如果包长度除以4大于等于127 (&gt;= <code>0x7f</code>)，使用下面包装：</p>
+<ul>
+<li>Header: 头字节 <code>0x7f</code>，小字节序其实位于尾部</li>
+<li>Length: payload长度，除以4，编码成3字节小字节序</li>
+<li>Payload: the MTProto payload</li>
+</ul>
+<h3><a class="anchor" href="#intermediate" id="intermediate"><i class="anchor-icon"></i></a>中间模式 Intermediate</h3>
+<p>如果需要4字节对齐，则可以使用原始协议的中间模式。</p>
+<ul>
+<li>总开销：小</li>
+<li>信封最小长度：4字节</li>
+<li>信封最大长度：4字节</li>
+</ul>
+<p>Payload结构：</p>
+<pre><code>+----+----...----+
++len.+  payload  +
++----+----...----+</code></pre>
+<p>发送 <em>任何数据</em> 到Socket之前（查阅 <a href="transports">transports</a>），客户端必须发送 <code>0xeeeeeeee</code> 作为前缀（4字节，服务器第1次回应 <strong>不会</strong> 发送 <code>0xeeeeeeee</code> 做前缀）。<br>
+然后，payloads会包装进下面信封里：</p>
+<ul>
+<li>Length: payload长度，编码为4字节，小字节序</li>
+<li>Payload: MTProto有效载荷</li>
+</ul>
+<h3><a class="anchor" href="#padded-intermediate" id="padded-intermediate"><i class="anchor-icon"></i></a>带填充的中间模式 Padded intermediate</h3>
+<p>带填充的 <a href="#intermediate">中间版协议</a>，用来 <a href="#transport-obfsucation">启用混淆</a>，以 <strong>绕过ISP封杀</strong>。</p>
+<ul>
+<li>总开销：中小</li>
+<li>信封最小长度：随机</li>
+<li>信封最大长度：随机</li>
+</ul>
+<p>发送 <em>任何数据</em> 到Socket之前（查阅 <a href="transports">transports</a>），客户端必须发送 <code>0xdddddddd</code> 作为前缀（4字节，服务器第1次回应 <strong>不会</strong> 发送 <code>0xdddddddd</code> 做前缀）。<br>
+然后，payloads被包装进下面信封里：</p>
+<pre><code>+----+----...----+----...----+
+|tlen|  payload  |  padding  |
++----+----...----+----...----+</code></pre>
+<p>信封说明：</p>
+<ul>
+<li>Total length: payload+padding length，4字节，小字节序</li>
+<li>Payload: MTProto有效载荷</li>
+<li>Padding: 随机填充字符串，长度 <code>0-15</code></li>
+</ul>
+<h3><a class="anchor" href="#full" id="full"><i class="anchor-icon"></i></a>完整模式 Full</h3>
+<p>基本的MTProto传输模式</p>
+<ul>
+<li>总开销：中等</li>
+<li>信封最小长度：12字节 (length+seqno+crc)</li>
+<li>信封最大长度：12字节 (length+seqno+crc)</li>
+</ul>
+<p>Payload结构：</p>
+<pre><code>+----+----+----...----+----+
+|len.|seq.|  payload  |crc.|
++----+----+----...----+----+</code></pre>
+<p>信封说明：</p>
+<ul>
+<li>Length: length+seqno+payload+crc length，4字节（小字节序，长度包含前面的length）。</li>
+<li>Seqno: 同一TCP连接的包序列号，（不同于 <a href="https://core.telegram.org/mtproto/description#message-sequence-number-msg-seqno">MTProto序列号</a>）：第1个包用0，下1个包用1，递增。</li>
+<li>payload: MTProto有效负载。</li>
+<li>crc: 4自己的CRC32，用length+seqno+payload一起计算得出。</li>
+</ul>
+<h3><a class="anchor" href="#transport-features" id="transport-features"><i class="anchor-icon"></i></a>传输功能 Transport features</h3>
+<p>另外，可以使用下面的传输功能：</p>
+<h4><a class="anchor" href="#quick-ack" id="quick-ack"><i class="anchor-icon"></i></a>快速确认 Quick ack</h4>
+<p>这些MTProto传输模式都支持快速确认。在这种情况下，客户端在查询数据包中设置length的最高位为1（<code>packetLength |= 0x80000000;</code>），服务器以特殊的4字节作为响应。它们计算方式是：SHA256（32位auth_key + 数据的加密部分）的前面32位（与验证msg_key的计算方式相同），最高有效位被设置为清楚地表明这不是一个常规的响应包长度；如果使用精简版传输，则bswap将应用于这4个字节。</p>
+<h4><a class="anchor" href="#transport-errors" id="transport-errors"><i class="anchor-icon"></i></a>传输错误 Transport errors</h4>
+<p>如果发生传输错误（缺少auth_key，传输泛滥等），服务器可以发送一个带符号整数（4字节小字节序），其 <strong>绝对值</strong> 包含错误码（实际是负数）。 </p>
+<p>例如，错误码 403 对应的是相应的HTTP错误。</p>
+<p>错误码 404 （auth_key授权密钥未找到）表示指定的auth_key_id找不到auth_key。</p>
+<p>错误码 429 （传输泛滥） 表示同一IP短时间内连接过多。</p>
+<h4><a class="anchor" href="#transport-obfuscation" id="transport-obfuscation"><i class="anchor-icon"></i></a>传输混淆 Transport obfuscation</h4>
+<p> <a href="transports#websocket">websocket传输</a> 必须使用传输混淆</p>
+<p>用下面协议实现了传输混淆，以 <strong>防止ISP封杀</strong>，该协议在ISO/OSI栈中位于MTProto传输协议之下，参见 <a href="/mtproto#recap">MTProto概括</a>；这意味着payload首先被包裹在 <a href="/mtproto/mtproto-transports">MTProto传输信封</a> 中（支持所有传输模式），然后进行混淆：</p>
+<p>在建立连接（并最终发送特定<a href="/mtproto/mtproto-transports">MTProto传输模式</a> 协议头），将生成一个64位的 <strong>随机</strong> 初始化有效载荷。生成过程必须格外小心，要避免随机字符串前4个字节等于已知模式头标识，见上文。<br>
+特别是，前4个字节不能等于 <code>0xdddddddd</code>（带填充的中间模式），<code>0xeeeeeeee</code>（中间模式），<code>POST</code>，<code>GET</code>，<code>HEAD</code>，或服务器能接受的任何一个HTTP方法名。<br>
+首字节也不能等于 <code>0xef</code>（精简模式）。
+第 <code>4-8</code> 字节也不能等于 <code>0x00000000</code>，因为这表示使用完整模式初始化TCP序列号0。</p>
+<p>传输模式标识符，如果存在，必须插入到初始化payload的<code>56</code>字节：如果长度小于4，必须用自己的标识符填充到4字节（<code>0xef</code> =&gt; <code>0xefefefef</code>）：事后不能再独立发送协议标识符。</p>
+<p>This protocol is also (but not exclusively) used when connecting to MTProxies: <strong>only in this case</strong>, the DC ID in a specially encoded form must also be inserted in the initialization payload at offset <code>60</code>.
+The encoding simply consist of the DC ID in two-byte signed little-endian form; <code>10000</code> has to be added to the DC ID to connect to the test servers; it has to be made negative if the DC we're connecting to is a media (not CDN) DC.  </p>
+<p>接下来，通过反转主要初始化payload来生成辅助初始化payload。</p>
+<p>从两个初始化payloads中导出两个密钥key，使用 <code>8-40</code> 字节：主初始化payload导出的是加密密钥，辅初始化payload导出的是解密密钥。</p>
+<p>从两个初始化payloads中导出两个初始化向量IV，使用 <code>40-56</code> 字节：主初始化payload导出的是加密初始化向量，辅初始化payload导出的是解密初始化向量。</p>
+<p><strong>Only if using MTProxy</strong>, the secret is used to provide connection with the MTProxy server.
+The secret is a 16-byte string, usually distributed in its hexadecimal form along with the MTProxy host and port.</p>
+<p>通常，会找到一个17比特版本的secret：这仅表明客户端会使用特定的传输模式（基于首字节，通常是<code>0xdd</code>，表示应使用带填充的中间模式<code>0xdddddddd</code>；然而，每当遇到secret中的其他字节时，客户端应默认使用带填充的中间模式）。</p>
+<p>导出的加密和解密密钥必须与secret（如果为17字节版本，则首字节被忽略）串联在一起，并且该字符串的SHA256哈希值被用做加密解密密钥。</p>
+<p>取得的加密解密密钥key和初始化向量IV对，用于 <strong>AES-256-CTR</strong> 加密解密，对所有的进出payloads都要进行加密解密。</p>
+<p>必须使用加密密钥的第一件事就是初始化payload本身。然后，加密的初始化payload的<code>56-64</code>字节被替换为原始的初始化payload：这里是MTProto传输模式标识符和DC ID(<strong>仅用于MTProxies</strong>)。</p>
+<p>TCP握手后，最终初始化payload必须作为<strong>头64字节</strong>立即发送。</p>
+<p>MTProxy代理连接payload（media DC 4）生成的伪代码，使用混淆的 <a href="#padded-intermediate">带填充的中间模式</a> 传输。
+<strong>警告</strong>：不要在你的MTProxy中使用下面的secret。</p>
+<pre><code>protocol := 0xdddddddd
+dc := 0xfcff
+
+while 1:
+    init := (56 random bytes) + protocol + dc + (2 random bytes)
+
+    if init[0] == 0xef:
+      continue
+
+    first_int := substr(init, 0, 4)
+    if first_int == 0x44414548 || first_int == 0x54534f50 || first_int == 0x20544547 || first_int == 0x4954504f || first_int == 0xdddddddd || first_int == 0xeeeeeeee:
+      continue
+
+    second_int := substr(init, 0, 4)
+    if second_int == 0x00000000:
+      continue
+
+    break
+
+initRev := strrev(init)
+
+encryptKey := substr(init, 8, 32)
+encryptIV := substr(init, 40, 16)
+
+decryptKey := substr(initRev, 8, 32)
+decryptIV := substr(initRev, 40, 16)
+
+secret := substr(0xdd99999999999999999999999999999999, 1, 16)
+
+encryptKey = SHA256(encryptKey + secret)
+decryptKey = SHA256(decryptKey + secret)
+
+encryptedInit := CTR(encryptKey, encryptIV, init)
+
+finalInit := substr(init, 0, 56) + substr(encryptedInit, 56, 8)
+
+write(finalInit)</code></pre></div>
+  
+</div>
+          
+        </div>
+      </div>
+      <div class="footer_wrap">
+  <div class="footer_columns_wrap clearfix footer_desktop">
+    <div class="footer_column footer_column_telegram">
+      <h5>Telegram</h5>
+      <div class="footer_telegram_description"></div>
+      Telegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.
+    </div>
+
+    <div class="footer_column">
+      <h5><a href="//telegram.org/faq">About</a></h5>
+      <ul>
+        <li><a href="//telegram.org/faq">FAQ</a></li>
+        <li><a href="//telegram.org/blog">Blog</a></li>
+        <li><a href="//telegram.org/jobs">Jobs</a></li>
+      </ul>
+    </div>
+    <div class="footer_column">
+      <h5><a href="//telegram.org/apps#mobile-apps">Mobile Apps</a></h5>
+      <ul>
+        <li><a href="//telegram.org/dl/ios">iPhone/iPad</a></li>
+        <li><a href="//telegram.org/dl/android">Android</a></li>
+        <li><a href="//telegram.org/dl/wp">Windows Phone</a></li>
+      </ul>
+    </div>
+    <div class="footer_column">
+      <h5><a href="//telegram.org/apps#desktop-apps">Desktop Apps</a></h5>
+      <ul>
+        <li><a href="//desktop.telegram.org/">PC/Mac/Linux</a></li>
+        <li><a href="//macos.telegram.org/">macOS</a></li>
+        <li><a href="//telegram.org/dl/web">Web-browser</a></li>
+      </ul>
+    </div>
+    <div class="footer_column footer_column_platform">
+      <h5><a href="/">Platform</a></h5>
+      <ul>
+        <li><a href="/api">API</a></li>
+        <li><a href="//translations.telegram.org/">Translations</a></li>
+        <li><a href="//instantview.telegram.org/">Instant View</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer_columns_wrap clearfix footer_mobile">
+    <div class="footer_column">
+      <h5><a href="//telegram.org/faq">About</a></h5>
+    </div>
+    <div class="footer_column">
+      <h5><a href="//telegram.org/blog">Blog</a></h5>
+    </div>
+    <div class="footer_column">
+      <h5><a href="//telegram.org/apps">Apps</a></h5>
+    </div>
+    <div class="footer_column">
+      <h5><a href="/">Platform</a></h5>
+    </div>
+    <div class="footer_column">
+      <h5><a href="https://twitter.com/telegram" target="_blank" data-track="Follow/Twitter" onclick="trackDlClick(this, event)">Twitter</a></h5>
+    </div>
+  </div>
+</div>
+    </div>
+    <script src="/js/main.js?27"></script>
+    <script src="/js/jquery.min.js?1"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+    <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45099287-4', 'auto');
+ga('set', 'anonymizeIp', true);
+ga('send', 'pageview');initDevPageNav();
+backToTopInit();
+</script>
+  </body>
+</html>
+<!-- page generated in 7.51ms -->

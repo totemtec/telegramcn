@@ -121,16 +121,16 @@ Client developers are required to comply with the Security…">
                 <h3><a class="anchor" name="mtproto-transport" href="#mtproto-transport"><i class="anchor-icon"></i></a>MTProto transport</h3>
                 <p>Before being sent using the selected transport protocol, the payload has to be wrapped in a secondary protocol header, defined by the appropriate MTProto transport protocol.  </p>
                 <ul>
-                    <li><a href="mtproto/mtproto-transports#abridged">Abridged</a></li>
-                    <li><a href="mtproto/mtproto-transports#intermediate">Intermediate</a></li>
-                    <li><a href="mtproto/mtproto-transports#padded-intermediate">Padded intermediate</a></li>
-                    <li><a href="mtproto/mtproto-transports#full">Full</a></li>
+                    <li><a href="/mtproto/mtproto-transports#abridged">Abridged</a></li>
+                    <li><a href="/mtproto/mtproto-transports#intermediate">Intermediate</a></li>
+                    <li><a href="/mtproto/mtproto-transports#padded-intermediate">Padded intermediate</a></li>
+                    <li><a href="/mtproto/mtproto-transports#full">Full</a></li>
                 </ul>
                 <p>The server recognizes these different protocols (and distinguishes them from HTTP, too) by the header.<br>Additionally, the following transport features can be used: </p>
                 <ul>
-                    <li><a href="mtproto/mtproto-transports#quick-ack">Quick ack</a></li>
-                    <li><a href="mtproto/mtproto-transports#transport-errors">Transport errors</a></li>
-                    <li><a href="mtproto/mtproto-transports#transport-obfuscation">Transport obfuscation</a></li>
+                    <li><a href="/mtproto/mtproto-transports#quick-ack">Quick ack</a></li>
+                    <li><a href="/mtproto/mtproto-transports#transport-errors">Transport errors</a></li>
+                    <li><a href="/mtproto/mtproto-transports#transport-obfuscation">Transport obfuscation</a></li>
                 </ul>
                 <p>Example implementations for these protocols can be seen in <a href="https://github.com/tdlib/td/blob/master/td/mtproto/TcpTransport.cpp">tdlib</a> and <a href="https://github.com/danog/MadelineProto/tree/master/src/danog/MadelineProto/Stream/MTProtoTransport">MadelineProto</a>.</p>
                 <h3><a class="anchor" name="transport" href="#transport"><i class="anchor-icon"></i></a>Transport</h3>
@@ -144,8 +144,8 @@ Client developers are required to comply with the Security…">
                     <li>UDP</li>
                 </ul>
                 <p>(We shall examine only the first five types.)</p>
-                <h3><a class="anchor" name="recap" href="#recap"><i class="anchor-icon"></i></a>Recap</h3>
-                <p>To recap, using the <a href="https://en.wikipedia.org/wiki/OSI_model#Layer_architecture">ISO/OSI stack as comparison</a>:  </p>
+                <h3><a class="anchor" name="recap" href="#recap"><i class="anchor-icon"></i></a>概述 Recap</h3>
+                <p>回顾一下， 使用 <a href="https://en.wikipedia.org/wiki/OSI_model#Layer_architecture">ISO/OSI网络模型</a> 作比较：</p>
                 <ul>
                     <li>Layer 7 (Application): <a href="#high-level-component-rpc-query-language-api">High-level RPC API</a></li>
                     <li>Layer 6 (Presentation): <a href="/mtproto/tl">Type Language</a></li>
